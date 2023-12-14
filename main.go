@@ -32,6 +32,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/threagile/threagile/cmd"
 	"github.com/threagile/threagile/colors"
 	addbuildpipeline "github.com/threagile/threagile/macros/built-in/add-build-pipeline"
 	addvault "github.com/threagile/threagile/macros/built-in/add-vault"
@@ -85,6 +86,8 @@ import (
 	xmlexternalentity "github.com/threagile/threagile/risks/built-in/xml-external-entity"
 	"golang.org/x/crypto/argon2"
 	"gopkg.in/yaml.v3"
+
+	"github.com/threagile/threagile/pkg/docs"
 )
 
 const keepDiagramSourceFiles = false
@@ -686,12 +689,14 @@ func checkErr(err error) {
 }
 
 func main() {
-	parseCommandlineArgs()
-	if *serverPort > 0 {
-		startServer()
-	} else {
-		doIt(*modelFilename, *outputDir)
-	}
+	cmd.Execute()
+
+	// parseCommandlineArgs()
+	// if *serverPort > 0 {
+	// 	startServer()
+	// } else {
+	// 	doIt(*modelFilename, *outputDir)
+	// }
 }
 
 // Unzip will decompress a zip archive, moving all files and folders
@@ -810,7 +815,7 @@ func doIt(inputFilename string, outputDirectory string) {
 		}
 	}()
 	if len(*executeModelMacro) > 0 {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 	} else {
 		if *verbose {
 			fmt.Println("Writing into output directory:", outputDirectory)
@@ -1499,7 +1504,7 @@ func startServer() {
 	})
 	router.GET("/meta/version", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"version":         model.ThreagileVersion,
+			"version":         docs.ThreagileVersion,
 			"build_timestamp": buildTimestamp,
 		})
 	})
@@ -3042,7 +3047,7 @@ func createNewModel(context *gin.Context) {
 	}
 
 	aYaml := `title: New Threat Model
-threagile_version: ` + model.ThreagileVersion + `
+threagile_version: ` + docs.ThreagileVersion + `
 author:
   name: ""
   homepage: ""
@@ -3239,7 +3244,7 @@ func readModel(context *gin.Context, modelUUID string, key []byte, folderNameOfK
 func writeModel(context *gin.Context, key []byte, folderNameOfKey string, modelInput *model.ModelInput, changeReasonForHistory string) (ok bool) {
 	modelFolder, ok := checkModelFolder(context, context.Param("model-id"), folderNameOfKey)
 	if ok {
-		modelInput.ThreagileVersion = model.ThreagileVersion
+		modelInput.ThreagileVersion = docs.ThreagileVersion
 		yamlBytes, err := yaml.Marshal(modelInput)
 		if err != nil {
 			log.Println(err)
@@ -3614,7 +3619,6 @@ func parseCommandlineArgs() {
 	riskRulesPlugins = flag.String("custom-risk-rules-plugins", "", "comma-separated list of plugins (.so shared object) file names with custom risk rules to load")
 	verbose = flag.Bool("verbose", false, "verbose output")
 	ignoreOrphanedRiskTracking = flag.Bool("ignore-orphaned-risk-tracking", false, "ignore orphaned risk tracking (just log them) not matching a concrete risk")
-	version := flag.Bool("version", false, "print version")
 	listTypes := flag.Bool("list-types", false, "print type information (enum values to be used in models)")
 	listRiskRules := flag.Bool("list-risk-rules", false, "print risk rules")
 	listModelMacros := flag.Bool("list-model-macros", false, "print model macros")
@@ -3623,48 +3627,14 @@ func parseCommandlineArgs() {
 	explainModelMacros := flag.Bool("explain-model-macros", false, "Detailed explanation of all the model macros")
 	print3rdParty := flag.Bool("print-3rd-party-licenses", false, "print 3rd-party license information")
 	license := flag.Bool("print-license", false, "print license information")
-	flag.Usage = func() {
-		printLogo()
-		_, _ = fmt.Fprintf(os.Stderr, "Usage: threagile [options]")
-		fmt.Println()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println("Options:")
-		fmt.Println()
-		flag.PrintDefaults()
-		fmt.Println()
-		fmt.Println()
-		fmt.Println("Examples:")
-		fmt.Println()
-		fmt.Println("If you want to create an example model (via docker) as a starting point to learn about Threagile just run: ")
-		fmt.Println(" docker run --rm -it " +
-			"-v \"$(pwd)\":" + filepath.Join(appFolder, "work") + " " +
-			"threagile/threagile " +
-			"-create-example-model " +
-			"-output " + filepath.Join(appFolder, "work"))
-		fmt.Println()
-		fmt.Println("If you want to create a minimal stub model (via docker) as a starting point for your own model just run: ")
-		fmt.Println(" docker run --rm -it " +
-			"-v \"$(pwd)\":" + filepath.Join(appFolder, "work") + " " +
-			"threagile/threagile " +
-			"-create-stub-model " +
-			"-output " + filepath.Join(appFolder, "work"))
-		fmt.Println()
-		printExamples()
-		fmt.Println()
-	}
 	flag.Parse()
 	if *diagramDPI < 20 {
 		*diagramDPI = 20
 	} else if *diagramDPI > maxGraphvizDPI {
 		*diagramDPI = 300
 	}
-	if *version {
-		printLogo()
-		os.Exit(0)
-	}
 	if *listTypes {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("The following types are available (can be extended for custom rules):")
 		fmt.Println()
 		printTypes("Authentication", model.AuthenticationValues())
@@ -3712,7 +3682,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *listModelMacros {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("The following model macros are available (can be extended via custom model macros):")
 		fmt.Println()
 		/* TODO finish plugin stuff
@@ -3735,7 +3705,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *listRiskRules {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("The following risk rules are available (can be extended via custom risk rules):")
 		fmt.Println()
 		fmt.Println("------------------")
@@ -3795,7 +3765,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *explainTypes {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("Explanation for the types:")
 		fmt.Println()
 		printExplainTypes("Authentication", model.AuthenticationValues())
@@ -3823,7 +3793,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *explainModelMacros {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("Explanation for the model macros:")
 		fmt.Println()
 		fmt.Printf("%v: %v\n", addbuildpipeline.GetMacroDetails().ID, addbuildpipeline.GetMacroDetails().Description)
@@ -3837,7 +3807,7 @@ func parseCommandlineArgs() {
 
 	}
 	if *explainRiskRules {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("Explanation for risk rules:")
 		fmt.Println()
 		fmt.Printf("%v: %v\n", accidentalsecretleak.Category().Id, accidentalsecretleak.Category().Description)
@@ -3886,7 +3856,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *print3rdParty {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("Kudos & Credits to the following open-source projects:")
 		fmt.Println(" - golang (Google Go License): https://golang.org/LICENSE")
 		fmt.Println(" - go-yaml (MIT License): https://github.com/go-yaml/yaml/blob/v3/LICENSE")
@@ -3902,7 +3872,7 @@ func parseCommandlineArgs() {
 		os.Exit(0)
 	}
 	if *license {
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		content, err := os.ReadFile(filepath.Join(appFolder, "LICENSE.txt"))
 		checkErr(err)
 		fmt.Print(string(content))
@@ -3911,25 +3881,25 @@ func parseCommandlineArgs() {
 	}
 	if *createExampleModel {
 		createExampleModelFile()
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("An example model was created named threagile-example-model.yaml in the output directory.")
 		fmt.Println()
-		printExamples()
+		fmt.Println(docs.Examples)
 		fmt.Println()
 		os.Exit(0)
 	}
 	if *createStubModel {
 		createStubModelFile()
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("A minimal stub model was created named threagile-stub-model.yaml in the output directory.")
 		fmt.Println()
-		printExamples()
+		fmt.Println(docs.Examples)
 		fmt.Println()
 		os.Exit(0)
 	}
 	if *createEditingSupport {
 		createEditingSupportFiles()
-		printLogo()
+		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("The following files were created in the output directory:")
 		fmt.Println(" - schema.json")
 		fmt.Println(" - live-templates.txt")
@@ -3941,25 +3911,6 @@ func parseCommandlineArgs() {
 		fmt.Println()
 		os.Exit(0)
 	}
-}
-
-func printLogo() {
-	fmt.Println()
-	fmt.Println("  _____ _                          _ _      \n |_   _| |__  _ __ ___  __ _  __ _(_) | ___ \n   | | | '_ \\| '__/ _ \\/ _` |/ _` | | |/ _ \\\n   | | | | | | | |  __/ (_| | (_| | | |  __/\n   |_| |_| |_|_|  \\___|\\__,_|\\__, |_|_|\\___|\n                             |___/        ")
-	fmt.Println("Threagile - Agile Threat Modeling")
-	fmt.Println()
-	fmt.Println()
-	printVersion()
-}
-
-func printVersion() {
-	fmt.Println("Documentation: https://threagile.io")
-	fmt.Println("Docker Images: https://hub.docker.com/r/threagile/threagile")
-	fmt.Println("Sourcecode: https://github.com/threagile")
-	fmt.Println("License: Open-Source (MIT License)")
-	fmt.Println("Version: " + model.ThreagileVersion + " (" + buildTimestamp + ")")
-	fmt.Println()
-	fmt.Println()
 }
 
 func createExampleModelFile() {
@@ -3977,36 +3928,6 @@ func createStubModelFile() {
 func createEditingSupportFiles() {
 	_, _ = copyFile(filepath.Join(appFolder, "schema.json"), filepath.Join(*outputDir, "schema.json"))
 	_, _ = copyFile(filepath.Join(appFolder, "live-templates.txt"), filepath.Join(*outputDir, "live-templates.txt"))
-}
-
-func printExamples() {
-	fmt.Println("If you want to execute Threagile on a model yaml file (via docker): ")
-	fmt.Println(" docker run --rm -it " +
-		"-v \"$(pwd)\":" + filepath.Join(appFolder, "work") + " " +
-		"threagile/threagile " +
-		"-verbose " +
-		"-model " + filepath.Join(appFolder, "work", outputFile) + " " +
-		"-output " + filepath.Join(appFolder, "work"))
-	fmt.Println()
-	fmt.Println("If you want to run Threagile as a server (REST API) on some port (here 8080): ")
-	fmt.Println(" docker run --rm -it " +
-		"--shm-size=256m " +
-		"-p 8080:8080 " +
-		"--name threagile-server " +
-		"--mount 'type=volume,src=threagile-storage,dst=/data,readonly=false' " +
-		"threagile/threagile -server 8080")
-	fmt.Println()
-	fmt.Println("If you want to find out about the different enum values usable in the model yaml file: ")
-	fmt.Println(" docker run --rm -it threagile/threagile -list-types")
-	fmt.Println()
-	fmt.Println("If you want to use some nice editing help (syntax validation, autocompletion, and live templates) in your favourite IDE: ")
-	fmt.Println(" docker run --rm -it -v \"$(pwd)\":" + filepath.Join(appFolder, "work") + " threagile/threagile -create-editing-support -output " + filepath.Join(appFolder, "work"))
-	fmt.Println()
-	fmt.Println("If you want to list all available model macros (which are macros capable of reading a model yaml file, asking you questions in a wizard-style and then update the model yaml file accordingly): ")
-	fmt.Println(" docker run --rm -it threagile/threagile -list-model-macros")
-	fmt.Println()
-	fmt.Println("If you want to execute a certain model macro on the model yaml file (here the macro add-build-pipeline): ")
-	fmt.Println(" docker run --rm -it -v \"$(pwd)\":" + filepath.Join(appFolder, "work") + " threagile/threagile -model " + filepath.Join(appFolder, "work", outputFile) + " -output " + filepath.Join(appFolder, "work") + " -execute-model-macro add-build-pipeline")
 }
 
 func printTypes(title string, value interface{}) {
