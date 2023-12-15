@@ -1116,7 +1116,6 @@ func doIt(inputFilename string, outputDirectory string) {
 				return
 			}
 		}
-		return
 	}
 
 	renderDataFlowDiagram, renderDataAssetDiagram, renderRisksJSON, renderTechnicalAssetsJSON, renderStatsJSON, renderRisksExcel, renderTagsExcel, renderPDF := *generateDataFlowDiagram, *generateDataAssetDiagram, *generateRisksJSON, *generateTechnicalAssetsJSON, *generateStatsJSON, *generateRisksExcel, *generateTagsExcel, *generateReportPDF
