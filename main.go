@@ -34,13 +34,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/threagile/threagile/cmd"
 	"github.com/threagile/threagile/colors"
-	addbuildpipeline "github.com/threagile/threagile/macros/built-in/add-build-pipeline"
-	addvault "github.com/threagile/threagile/macros/built-in/add-vault"
-	prettyprint "github.com/threagile/threagile/macros/built-in/pretty-print"
-	removeunusedtags "github.com/threagile/threagile/macros/built-in/remove-unused-tags"
-	seedrisktracking "github.com/threagile/threagile/macros/built-in/seed-risk-tracking"
-	seedtags "github.com/threagile/threagile/macros/built-in/seed-tags"
 	"github.com/threagile/threagile/model"
+	addbuildpipeline "github.com/threagile/threagile/pkg/macros/built-in/add-build-pipeline"
+	addvault "github.com/threagile/threagile/pkg/macros/built-in/add-vault"
+	prettyprint "github.com/threagile/threagile/pkg/macros/built-in/pretty-print"
+	removeunusedtags "github.com/threagile/threagile/pkg/macros/built-in/remove-unused-tags"
+	seedrisktracking "github.com/threagile/threagile/pkg/macros/built-in/seed-risk-tracking"
+	seedtags "github.com/threagile/threagile/pkg/macros/built-in/seed-tags"
 	"github.com/threagile/threagile/report"
 	accidentalsecretleak "github.com/threagile/threagile/risks/built-in/accidental-secret-leak"
 	codebackdooring "github.com/threagile/threagile/risks/built-in/code-backdooring"
@@ -691,6 +691,8 @@ func checkErr(err error) {
 func main() {
 	cmd.Execute()
 
+	// TODO: remove below as soon as refactoring is finished - everything will go through rootCmd.Execute
+	// for now it's fine to have as frequently uncommented to see the actual behaviour
 	// parseCommandlineArgs()
 	// if *serverPort > 0 {
 	// 	startServer()
@@ -3621,7 +3623,6 @@ func parseCommandlineArgs() {
 	ignoreOrphanedRiskTracking = flag.Bool("ignore-orphaned-risk-tracking", false, "ignore orphaned risk tracking (just log them) not matching a concrete risk")
 	listTypes := flag.Bool("list-types", false, "print type information (enum values to be used in models)")
 	listRiskRules := flag.Bool("list-risk-rules", false, "print risk rules")
-	listModelMacros := flag.Bool("list-model-macros", false, "print model macros")
 	explainTypes := flag.Bool("explain-types", false, "Detailed explanation of all the types")
 	explainRiskRules := flag.Bool("explain-risk-rules", false, "Detailed explanation of all the risk rules")
 	explainModelMacros := flag.Bool("explain-model-macros", false, "Detailed explanation of all the model macros")
@@ -3678,29 +3679,6 @@ func parseCommandlineArgs() {
 		printTypes("Trust Boundary Type", model.TrustBoundaryTypeValues())
 		fmt.Println()
 		printTypes("Usage", model.UsageValues())
-		fmt.Println()
-		os.Exit(0)
-	}
-	if *listModelMacros {
-		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
-		fmt.Println("The following model macros are available (can be extended via custom model macros):")
-		fmt.Println()
-		/* TODO finish plugin stuff
-		fmt.Println("Custom model macros:")
-		for id, customModelMacro := range customModelMacros {
-			fmt.Println(id, "-->", customModelMacro.GetMacroDetails().Title)
-		}
-		fmt.Println()
-		*/
-		fmt.Println("----------------------")
-		fmt.Println("Built-in model macros:")
-		fmt.Println("----------------------")
-		fmt.Println(addbuildpipeline.GetMacroDetails().ID, "-->", addbuildpipeline.GetMacroDetails().Title)
-		fmt.Println(addvault.GetMacroDetails().ID, "-->", addvault.GetMacroDetails().Title)
-		fmt.Println(prettyprint.GetMacroDetails().ID, "-->", prettyprint.GetMacroDetails().Title)
-		fmt.Println(removeunusedtags.GetMacroDetails().ID, "-->", removeunusedtags.GetMacroDetails().Title)
-		fmt.Println(seedrisktracking.GetMacroDetails().ID, "-->", seedrisktracking.GetMacroDetails().Title)
-		fmt.Println(seedtags.GetMacroDetails().ID, "-->", seedtags.GetMacroDetails().Title)
 		fmt.Println()
 		os.Exit(0)
 	}
