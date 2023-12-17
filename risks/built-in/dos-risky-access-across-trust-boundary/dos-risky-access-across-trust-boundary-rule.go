@@ -2,6 +2,7 @@ package dos_risky_access_across_trust_boundary
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -18,16 +19,16 @@ func Category() model.RiskCategory {
 			"Also for maintenance access routes consider applying a VPN instead of public reachable interfaces. " +
 			"Generally applying redundancy on the targeted technical asset reduces the risk of DoS.",
 		Check:    "Are recommendations from the linked cheat sheet and referenced ASVS chapter applied?",
-		Function: model.Operations,
-		STRIDE:   model.DenialOfService,
-		DetectionLogic: "In-scope technical assets (excluding " + model.LoadBalancer.String() + ") with " +
-			"availability rating of " + model.Critical.String() + " or higher which have incoming data-flows across a " +
-			"network trust-boundary (excluding " + model.DevOps.String() + " usage).",
+		Function: types.Operations,
+		STRIDE:   types.DenialOfService,
+		DetectionLogic: "In-scope technical assets (excluding " + types.LoadBalancer.String() + ") with " +
+			"availability rating of " + types.Critical.String() + " or higher which have incoming data-flows across a " +
+			"network trust-boundary (excluding " + types.DevOps.String() + " usage).",
 		RiskAssessment: "Matching technical assets with availability rating " +
-			"of " + model.Critical.String() + " or higher are " +
-			"at " + model.LowSeverity.String() + " risk. When the availability rating is " +
-			model.MissionCritical.String() + " and neither a VPN nor IP filter for the incoming data-flow nor redundancy " +
-			"for the asset is applied, the risk-rating is considered " + model.MediumSeverity.String() + ".", // TODO reduce also, when data-flow authenticated and encrypted?
+			"of " + types.Critical.String() + " or higher are " +
+			"at " + types.LowSeverity.String() + " risk. When the availability rating is " +
+			types.MissionCritical.String() + " and neither a VPN nor IP filter for the incoming data-flow nor redundancy " +
+			"for the asset is applied, the risk-rating is considered " + types.MediumSeverity.String() + ".", // TODO reduce also, when data-flow authenticated and encrypted?
 		FalsePositives:             "When the accessed target operations are not time- or resource-consuming.",
 		ModelFailurePossibleReason: false,
 		CWE:                        400,
@@ -42,8 +43,8 @@ func GenerateRisks() []model.Risk {
 	risks := make([]model.Risk, 0)
 	for _, id := range model.SortedTechnicalAssetIDs() {
 		technicalAsset := model.ParsedModelRoot.TechnicalAssets[id]
-		if !technicalAsset.OutOfScope && technicalAsset.Technology != model.LoadBalancer &&
-			technicalAsset.Availability >= model.Critical {
+		if !technicalAsset.OutOfScope && technicalAsset.Technology != types.LoadBalancer &&
+			technicalAsset.Availability >= types.Critical {
 			for _, incomingAccess := range model.IncomingTechnicalCommunicationLinksMappedByTargetId[technicalAsset.Id] {
 				sourceAsset := model.ParsedModelRoot.TechnicalAssets[incomingAccess.SourceId]
 				if sourceAsset.Technology.IsTrafficForwarding() {
@@ -63,8 +64,8 @@ func GenerateRisks() []model.Risk {
 
 func checkRisk(technicalAsset model.TechnicalAsset, incomingAccess model.CommunicationLink, hopBetween string, risks []model.Risk) []model.Risk {
 	if incomingAccess.IsAcrossTrustBoundaryNetworkOnly() &&
-		!incomingAccess.Protocol.IsProcessLocal() && incomingAccess.Usage != model.DevOps {
-		highRisk := technicalAsset.Availability == model.MissionCritical &&
+		!incomingAccess.Protocol.IsProcessLocal() && incomingAccess.Usage != types.DevOps {
+		highRisk := technicalAsset.Availability == types.MissionCritical &&
 			!incomingAccess.VPN && !incomingAccess.IpFiltered && !technicalAsset.Redundant
 		risks = append(risks, createRisk(technicalAsset, incomingAccess, hopBetween,
 			model.ParsedModelRoot.TechnicalAssets[incomingAccess.SourceId], highRisk))
@@ -74,23 +75,23 @@ func checkRisk(technicalAsset model.TechnicalAsset, incomingAccess model.Communi
 
 func createRisk(techAsset model.TechnicalAsset, dataFlow model.CommunicationLink, hopBetween string,
 	clientOutsideTrustBoundary model.TechnicalAsset, moreRisky bool) model.Risk {
-	impact := model.LowImpact
+	impact := types.LowImpact
 	if moreRisky {
-		impact = model.MediumImpact
+		impact = types.MediumImpact
 	}
 	if len(hopBetween) > 0 {
 		hopBetween = " forwarded via <b>" + hopBetween + "</b>"
 	}
 	risk := model.Risk{
 		Category:               Category(),
-		Severity:               model.CalculateSeverity(model.Unlikely, impact),
-		ExploitationLikelihood: model.Unlikely,
+		Severity:               model.CalculateSeverity(types.Unlikely, impact),
+		ExploitationLikelihood: types.Unlikely,
 		ExploitationImpact:     impact,
 		Title: "<b>Denial-of-Service</b> risky access of <b>" + techAsset.Title + "</b> by <b>" + clientOutsideTrustBoundary.Title +
 			"</b> via <b>" + dataFlow.Title + "</b>" + hopBetween,
 		MostRelevantTechnicalAssetId:    techAsset.Id,
 		MostRelevantCommunicationLinkId: dataFlow.Id,
-		DataBreachProbability:           model.Improbable,
+		DataBreachProbability:           types.Improbable,
 		DataBreachTechnicalAssetIDs:     []string{},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + techAsset.Id + "@" + clientOutsideTrustBoundary.Id + "@" + dataFlow.Id

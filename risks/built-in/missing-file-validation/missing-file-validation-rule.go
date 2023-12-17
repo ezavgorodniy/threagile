@@ -2,6 +2,7 @@ package missing_file_validation
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -19,8 +20,8 @@ func Category() model.RiskCategory {
 			"were uploaded, also apply a fresh malware scan during retrieval to scan with newer signatures of popular malware). Also enforce " +
 			"limits on maximum file size to avoid denial-of-service like scenarios.",
 		Check:          "Are recommendations from the linked cheat sheet and referenced ASVS chapter applied?",
-		Function:       model.Development,
-		STRIDE:         model.Spoofing,
+		Function:       types.Development,
+		STRIDE:         types.Spoofing,
 		DetectionLogic: "In-scope technical assets with custom-developed code accepting file data formats.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the technical asset itself and of the data assets processed and stored.",
 		FalsePositives: "Fully trusted (i.e. cryptographically signed or similar) files can be considered " +
@@ -42,7 +43,7 @@ func GenerateRisks() []model.Risk {
 			continue
 		}
 		for _, format := range technicalAsset.DataFormatsAccepted {
-			if format == model.File {
+			if format == types.File {
 				risks = append(risks, createRisk(technicalAsset))
 			}
 		}
@@ -52,20 +53,20 @@ func GenerateRisks() []model.Risk {
 
 func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 	title := "<b>Missing File Validation</b> risk at <b>" + technicalAsset.Title + "</b>"
-	impact := model.LowImpact
-	if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential ||
-		technicalAsset.HighestIntegrity() == model.MissionCritical ||
-		technicalAsset.HighestAvailability() == model.MissionCritical {
-		impact = model.MediumImpact
+	impact := types.LowImpact
+	if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential ||
+		technicalAsset.HighestIntegrity() == types.MissionCritical ||
+		technicalAsset.HighestAvailability() == types.MissionCritical {
+		impact = types.MediumImpact
 	}
 	risk := model.Risk{
 		Category:                     Category(),
-		Severity:                     model.CalculateSeverity(model.VeryLikely, impact),
-		ExploitationLikelihood:       model.VeryLikely,
+		Severity:                     model.CalculateSeverity(types.VeryLikely, impact),
+		ExploitationLikelihood:       types.VeryLikely,
 		ExploitationImpact:           impact,
 		Title:                        title,
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Probable,
+		DataBreachProbability:        types.Probable,
 		DataBreachTechnicalAssetIDs:  []string{technicalAsset.Id},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id

@@ -29,6 +29,5 @@ func Execute() {
 func init() {
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(listMacrosCmd)
-
-	// listModelMacros := flag.Bool("list-model-macros", false, "print model macros")
+	rootCmd.AddCommand(listTypesCmd)
 }

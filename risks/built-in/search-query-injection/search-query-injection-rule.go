@@ -2,6 +2,7 @@ package search_query_injection
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -21,8 +22,8 @@ func Category() model.RiskCategory {
 			"query unfiltered to the caller. " +
 			"When a third-party product is used instead of custom developed software, check if the product applies the proper mitigation and ensure a reasonable patch-level.",
 		Check:          "Are recommendations from the linked cheat sheet and referenced ASVS chapter applied?",
-		Function:       model.Development,
-		STRIDE:         model.Tampering,
+		Function:       types.Development,
+		STRIDE:         types.Tampering,
 		DetectionLogic: "In-scope clients accessing search engine servers via typical search access protocols.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the search engine server itself and of the data assets processed or stored.",
 		FalsePositives: "Server engine queries by search values not consisting of parts controllable by the caller can be considered " +
@@ -36,17 +37,17 @@ func GenerateRisks() []model.Risk {
 	risks := make([]model.Risk, 0)
 	for _, id := range model.SortedTechnicalAssetIDs() {
 		technicalAsset := model.ParsedModelRoot.TechnicalAssets[id]
-		if technicalAsset.Technology == model.SearchEngine || technicalAsset.Technology == model.SearchIndex {
+		if technicalAsset.Technology == types.SearchEngine || technicalAsset.Technology == types.SearchIndex {
 			incomingFlows := model.IncomingTechnicalCommunicationLinksMappedByTargetId[technicalAsset.Id]
 			for _, incomingFlow := range incomingFlows {
 				if model.ParsedModelRoot.TechnicalAssets[incomingFlow.SourceId].OutOfScope {
 					continue
 				}
-				if incomingFlow.Protocol == model.HTTP || incomingFlow.Protocol == model.HTTPS ||
-					incomingFlow.Protocol == model.BINARY || incomingFlow.Protocol == model.BinaryEncrypted {
-					likelihood := model.VeryLikely
-					if incomingFlow.Usage == model.DevOps {
-						likelihood = model.Likely
+				if incomingFlow.Protocol == types.HTTP || incomingFlow.Protocol == types.HTTPS ||
+					incomingFlow.Protocol == types.BINARY || incomingFlow.Protocol == types.BinaryEncrypted {
+					likelihood := types.VeryLikely
+					if incomingFlow.Usage == types.DevOps {
+						likelihood = types.Likely
 					}
 					risks = append(risks, createRisk(technicalAsset, incomingFlow, likelihood))
 				}
@@ -60,15 +61,15 @@ func SupportedTags() []string {
 	return []string{}
 }
 
-func createRisk(technicalAsset model.TechnicalAsset, incomingFlow model.CommunicationLink, likelihood model.RiskExploitationLikelihood) model.Risk {
+func createRisk(technicalAsset model.TechnicalAsset, incomingFlow model.CommunicationLink, likelihood types.RiskExploitationLikelihood) model.Risk {
 	caller := model.ParsedModelRoot.TechnicalAssets[incomingFlow.SourceId]
 	title := "<b>Search Query Injection</b> risk at <b>" + caller.Title + "</b> against search engine server <b>" + technicalAsset.Title + "</b>" +
 		" via <b>" + incomingFlow.Title + "</b>"
-	impact := model.MediumImpact
-	if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential || technicalAsset.HighestIntegrity() == model.MissionCritical {
-		impact = model.HighImpact
-	} else if technicalAsset.HighestConfidentiality() <= model.Internal && technicalAsset.HighestIntegrity() == model.Operational {
-		impact = model.LowImpact
+	impact := types.MediumImpact
+	if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential || technicalAsset.HighestIntegrity() == types.MissionCritical {
+		impact = types.HighImpact
+	} else if technicalAsset.HighestConfidentiality() <= types.Internal && technicalAsset.HighestIntegrity() == types.Operational {
+		impact = types.LowImpact
 	}
 	risk := model.Risk{
 		Category:                        Category(),
@@ -78,7 +79,7 @@ func createRisk(technicalAsset model.TechnicalAsset, incomingFlow model.Communic
 		Title:                           title,
 		MostRelevantTechnicalAssetId:    caller.Id,
 		MostRelevantCommunicationLinkId: incomingFlow.Id,
-		DataBreachProbability:           model.Probable,
+		DataBreachProbability:           types.Probable,
 		DataBreachTechnicalAssetIDs:     []string{technicalAsset.Id},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + caller.Id + "@" + technicalAsset.Id + "@" + incomingFlow.Id

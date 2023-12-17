@@ -1,9 +1,11 @@
 package seed_risk_tracking
 
 import (
-	"github.com/threagile/threagile/model"
 	"sort"
 	"strconv"
+
+	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func GetMacroDetails() model.MacroDetails {
@@ -43,7 +45,7 @@ func Execute(modelInput *model.ModelInput) (message string, validResult bool, er
 	}
 	for _, id := range syntheticRiskIDsToCreateTrackingFor {
 		modelInput.RiskTracking[id] = model.InputRiskTracking{
-			Status:        model.Unchecked.String(),
+			Status:        types.Unchecked.String(),
 			Justification: "",
 			Ticket:        "",
 			Date:          "",

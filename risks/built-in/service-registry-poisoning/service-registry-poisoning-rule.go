@@ -2,6 +2,7 @@ package service_registry_poisoning
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -16,8 +17,8 @@ func Category() model.RiskCategory {
 		Action:         "Service Registry Integrity Check",
 		Mitigation:     "Try to strengthen the access control of the service registry and apply cross-checks to detect maliciously poisoned lookup data.",
 		Check:          "Are recommendations from the linked cheat sheet and referenced ASVS chapter applied?",
-		Function:       model.Architecture,
-		STRIDE:         model.Spoofing,
+		Function:       types.Architecture,
+		STRIDE:         types.Spoofing,
 		DetectionLogic: "In-scope service registries.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the technical assets accessing the service registry " +
 			"as well as the data assets processed or stored.",
@@ -36,7 +37,7 @@ func GenerateRisks() []model.Risk {
 	risks := make([]model.Risk, 0)
 	for _, id := range model.SortedTechnicalAssetIDs() {
 		technicalAsset := model.ParsedModelRoot.TechnicalAssets[id]
-		if !technicalAsset.OutOfScope && technicalAsset.Technology == model.ServiceRegistry {
+		if !technicalAsset.OutOfScope && technicalAsset.Technology == types.ServiceRegistry {
 			incomingFlows := model.IncomingTechnicalCommunicationLinksMappedByTargetId[technicalAsset.Id]
 			risks = append(risks, createRisk(technicalAsset, incomingFlows))
 		}
@@ -46,26 +47,26 @@ func GenerateRisks() []model.Risk {
 
 func createRisk(technicalAsset model.TechnicalAsset, incomingFlows []model.CommunicationLink) model.Risk {
 	title := "<b>Service Registry Poisoning</b> risk at <b>" + technicalAsset.Title + "</b>"
-	impact := model.LowImpact
+	impact := types.LowImpact
 
 	for _, incomingFlow := range incomingFlows {
 		caller := model.ParsedModelRoot.TechnicalAssets[incomingFlow.SourceId]
-		if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential || technicalAsset.HighestIntegrity() == model.MissionCritical || technicalAsset.HighestAvailability() == model.MissionCritical ||
-			caller.HighestConfidentiality() == model.StrictlyConfidential || caller.HighestIntegrity() == model.MissionCritical || caller.HighestAvailability() == model.MissionCritical ||
-			incomingFlow.HighestConfidentiality() == model.StrictlyConfidential || incomingFlow.HighestIntegrity() == model.MissionCritical || incomingFlow.HighestAvailability() == model.MissionCritical {
-			impact = model.MediumImpact
+		if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential || technicalAsset.HighestIntegrity() == types.MissionCritical || technicalAsset.HighestAvailability() == types.MissionCritical ||
+			caller.HighestConfidentiality() == types.StrictlyConfidential || caller.HighestIntegrity() == types.MissionCritical || caller.HighestAvailability() == types.MissionCritical ||
+			incomingFlow.HighestConfidentiality() == types.StrictlyConfidential || incomingFlow.HighestIntegrity() == types.MissionCritical || incomingFlow.HighestAvailability() == types.MissionCritical {
+			impact = types.MediumImpact
 			break
 		}
 	}
 
 	risk := model.Risk{
 		Category:                     Category(),
-		Severity:                     model.CalculateSeverity(model.Unlikely, impact),
-		ExploitationLikelihood:       model.Unlikely,
+		Severity:                     model.CalculateSeverity(types.Unlikely, impact),
+		ExploitationLikelihood:       types.Unlikely,
 		ExploitationImpact:           impact,
 		Title:                        title,
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Improbable,
+		DataBreachProbability:        types.Improbable,
 		DataBreachTechnicalAssetIDs:  []string{technicalAsset.Id}, // TODO: find all service-lookup-using tech assets, which then might use spoofed lookups?
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id

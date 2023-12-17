@@ -2,6 +2,7 @@ package container_baseimage_backdooring
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -20,8 +21,8 @@ func Category() model.RiskCategory {
 			"Also consider using Google's <i>Distroless</i> base images or otherwise very small base images. " +
 			"Regularly execute container image scans with tools checking the layers for vulnerable components.",
 		Check:          "Are recommendations from the linked cheat sheet and referenced ASVS/CSVS applied?",
-		Function:       model.Operations,
-		STRIDE:         model.Tampering,
+		Function:       types.Operations,
+		STRIDE:         types.Tampering,
 		DetectionLogic: "In-scope technical assets running as containers.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the technical asset itself and of the data assets.",
 		FalsePositives: "Fully trusted (i.e. reviewed and cryptographically signed or similar) base images of containers can be considered " +
@@ -39,7 +40,7 @@ func GenerateRisks() []model.Risk {
 	risks := make([]model.Risk, 0)
 	for _, id := range model.SortedTechnicalAssetIDs() {
 		technicalAsset := model.ParsedModelRoot.TechnicalAssets[id]
-		if !technicalAsset.OutOfScope && technicalAsset.Machine == model.Container {
+		if !technicalAsset.OutOfScope && technicalAsset.Machine == types.Container {
 			risks = append(risks, createRisk(technicalAsset))
 		}
 	}
@@ -48,20 +49,20 @@ func GenerateRisks() []model.Risk {
 
 func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 	title := "<b>Container Base Image Backdooring</b> risk at <b>" + technicalAsset.Title + "</b>"
-	impact := model.MediumImpact
-	if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential ||
-		technicalAsset.HighestIntegrity() == model.MissionCritical ||
-		technicalAsset.HighestAvailability() == model.MissionCritical {
-		impact = model.HighImpact
+	impact := types.MediumImpact
+	if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential ||
+		technicalAsset.HighestIntegrity() == types.MissionCritical ||
+		technicalAsset.HighestAvailability() == types.MissionCritical {
+		impact = types.HighImpact
 	}
 	risk := model.Risk{
 		Category:                     Category(),
-		Severity:                     model.CalculateSeverity(model.Unlikely, impact),
-		ExploitationLikelihood:       model.Unlikely,
+		Severity:                     model.CalculateSeverity(types.Unlikely, impact),
+		ExploitationLikelihood:       types.Unlikely,
 		ExploitationImpact:           impact,
 		Title:                        title,
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Probable,
+		DataBreachProbability:        types.Probable,
 		DataBreachTechnicalAssetIDs:  []string{technicalAsset.Id},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id

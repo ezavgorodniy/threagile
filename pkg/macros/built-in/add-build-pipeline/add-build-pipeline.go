@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func GetMacroDetails() model.MacroDetails {
@@ -190,14 +191,14 @@ func GetNextQuestion() (nextQuestion model.MacroQuestion, err error) {
 			ID:          "new-trust-boundary-type",
 			Title:       "Of which type shall the new trust boundary be?",
 			Description: "",
-			PossibleAnswers: []string{model.NetworkOnPrem.String(),
-				model.NetworkDedicatedHoster.String(),
-				model.NetworkVirtualLAN.String(),
-				model.NetworkCloudProvider.String(),
-				model.NetworkCloudSecurityGroup.String(),
-				model.NetworkPolicyNamespaceIsolation.String()},
+			PossibleAnswers: []string{types.NetworkOnPrem.String(),
+				types.NetworkDedicatedHoster.String(),
+				types.NetworkVirtualLAN.String(),
+				types.NetworkCloudProvider.String(),
+				types.NetworkCloudSecurityGroup.String(),
+				types.NetworkPolicyNamespaceIsolation.String()},
 			MultiSelect:   false,
-			DefaultAnswer: model.NetworkOnPrem.String(),
+			DefaultAnswer: types.NetworkOnPrem.String(),
 		}, nil
 	case 15:
 		return model.MacroQuestion{
@@ -292,14 +293,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		dataAsset := model.InputDataAsset{
 			ID:              "sourcecode",
 			Description:     "Sourcecode to build the application components from",
-			Usage:           model.DevOps.String(),
+			Usage:           types.DevOps.String(),
 			Tags:            []string{},
 			Origin:          "",
 			Owner:           owner,
-			Quantity:        model.Few.String(),
-			Confidentiality: model.Confidential.String(),
-			Integrity:       model.Critical.String(),
-			Availability:    model.Important.String(),
+			Quantity:        types.Few.String(),
+			Confidentiality: types.Confidential.String(),
+			Integrity:       types.Critical.String(),
+			Availability:    types.Important.String(),
 			JustificationCiaRating: "Sourcecode is at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 		}
@@ -314,14 +315,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		dataAsset := model.InputDataAsset{
 			ID:              "deployment",
 			Description:     "Deployment unit being installed/shipped",
-			Usage:           model.DevOps.String(),
+			Usage:           types.DevOps.String(),
 			Tags:            []string{},
 			Origin:          "",
 			Owner:           owner,
-			Quantity:        model.VeryFew.String(),
-			Confidentiality: model.Confidential.String(),
-			Integrity:       model.Critical.String(),
-			Availability:    model.Important.String(),
+			Quantity:        types.VeryFew.String(),
+			Confidentiality: types.Confidential.String(),
+			Integrity:       types.Critical.String(),
+			Availability:    types.Important.String(),
 			JustificationCiaRating: "Deployment units are at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 		}
@@ -334,23 +335,23 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 	id := "development-client"
 	if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 		//fmt.Println("Adding technical asset:", id) // ################################################
-		encryption := model.NoneEncryption.String()
+		encryption := types.NoneEncryption.String()
 		if strings.ToLower(macroState["encryption"][0]) == "yes" {
-			encryption = model.Transparent.String()
+			encryption = types.Transparent.String()
 		}
 
 		commLinks := make(map[string]model.InputCommunicationLink)
 		commLinks["Sourcecode Repository Traffic"] = model.InputCommunicationLink{
 			Target:                 sourceRepoID,
 			Description:            "Sourcecode Repository Traffic",
-			Protocol:               model.HTTPS.String(),
-			Authentication:         model.Credentials.String(),
-			Authorization:          model.EndUserIdentityPropagation.String(),
+			Protocol:               types.HTTPS.String(),
+			Authentication:         types.Credentials.String(),
+			Authorization:          types.EndUserIdentityPropagation.String(),
 			Tags:                   []string{},
 			VPN:                    false,
 			IpFiltered:             false,
 			Readonly:               false,
-			Usage:                  model.DevOps.String(),
+			Usage:                  types.DevOps.String(),
 			DataAssetsSent:         []string{"sourcecode"},
 			DataAssetsReceived:     []string{"sourcecode"},
 			DiagramTweakWeight:     0,
@@ -359,14 +360,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		commLinks["Build Pipeline Traffic"] = model.InputCommunicationLink{
 			Target:                 buildPipelineID,
 			Description:            "Build Pipeline Traffic",
-			Protocol:               model.HTTPS.String(),
-			Authentication:         model.Credentials.String(),
-			Authorization:          model.EndUserIdentityPropagation.String(),
+			Protocol:               types.HTTPS.String(),
+			Authentication:         types.Credentials.String(),
+			Authorization:          types.EndUserIdentityPropagation.String(),
 			Tags:                   []string{},
 			VPN:                    false,
 			IpFiltered:             false,
 			Readonly:               true,
-			Usage:                  model.DevOps.String(),
+			Usage:                  types.DevOps.String(),
 			DataAssetsSent:         nil,
 			DataAssetsReceived:     []string{"deployment"},
 			DiagramTweakWeight:     0,
@@ -375,14 +376,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		commLinks["Artifact Registry Traffic"] = model.InputCommunicationLink{
 			Target:                 artifactRegistryID,
 			Description:            "Artifact Registry Traffic",
-			Protocol:               model.HTTPS.String(),
-			Authentication:         model.Credentials.String(),
-			Authorization:          model.EndUserIdentityPropagation.String(),
+			Protocol:               types.HTTPS.String(),
+			Authentication:         types.Credentials.String(),
+			Authorization:          types.EndUserIdentityPropagation.String(),
 			Tags:                   []string{},
 			VPN:                    false,
 			IpFiltered:             false,
 			Readonly:               true,
-			Usage:                  model.DevOps.String(),
+			Usage:                  types.DevOps.String(),
 			DataAssetsSent:         nil,
 			DataAssetsReceived:     []string{"deployment"},
 			DiagramTweakWeight:     0,
@@ -392,14 +393,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 			commLinks["Container Registry Traffic"] = model.InputCommunicationLink{
 				Target:                 containerRepoID,
 				Description:            "Container Registry Traffic",
-				Protocol:               model.HTTPS.String(),
-				Authentication:         model.Credentials.String(),
-				Authorization:          model.EndUserIdentityPropagation.String(),
+				Protocol:               types.HTTPS.String(),
+				Authentication:         types.Credentials.String(),
+				Authorization:          types.EndUserIdentityPropagation.String(),
 				Tags:                   []string{},
 				VPN:                    false,
 				IpFiltered:             false,
 				Readonly:               false,
-				Usage:                  model.DevOps.String(),
+				Usage:                  types.DevOps.String(),
 				DataAssetsSent:         []string{"deployment"},
 				DataAssetsReceived:     []string{"deployment"},
 				DiagramTweakWeight:     0,
@@ -408,14 +409,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 			commLinks["Container Platform Traffic"] = model.InputCommunicationLink{
 				Target:                 containerPlatformID,
 				Description:            "Container Platform Traffic",
-				Protocol:               model.HTTPS.String(),
-				Authentication:         model.Credentials.String(),
-				Authorization:          model.EndUserIdentityPropagation.String(),
+				Protocol:               types.HTTPS.String(),
+				Authentication:         types.Credentials.String(),
+				Authorization:          types.EndUserIdentityPropagation.String(),
 				Tags:                   []string{},
 				VPN:                    false,
 				IpFiltered:             false,
 				Readonly:               false,
-				Usage:                  model.DevOps.String(),
+				Usage:                  types.DevOps.String(),
 				DataAssetsSent:         []string{"deployment"},
 				DataAssetsReceived:     []string{"deployment"},
 				DiagramTweakWeight:     0,
@@ -426,14 +427,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 			commLinks["Code Inspection Platform Traffic"] = model.InputCommunicationLink{
 				Target:                 codeInspectionPlatformID,
 				Description:            "Code Inspection Platform Traffic",
-				Protocol:               model.HTTPS.String(),
-				Authentication:         model.Credentials.String(),
-				Authorization:          model.EndUserIdentityPropagation.String(),
+				Protocol:               types.HTTPS.String(),
+				Authentication:         types.Credentials.String(),
+				Authorization:          types.EndUserIdentityPropagation.String(),
 				Tags:                   []string{},
 				VPN:                    false,
 				IpFiltered:             false,
 				Readonly:               true,
-				Usage:                  model.DevOps.String(),
+				Usage:                  types.DevOps.String(),
 				DataAssetsSent:         nil,
 				DataAssetsReceived:     []string{"sourcecode"},
 				DiagramTweakWeight:     0,
@@ -444,21 +445,21 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		techAsset := model.InputTechnicalAsset{
 			ID:                      id,
 			Description:             "Development Client",
-			Type:                    model.ExternalEntity.String(),
-			Usage:                   model.DevOps.String(),
+			Type:                    types.ExternalEntity.String(),
+			Usage:                   types.DevOps.String(),
 			UsedAsClientByHuman:     true,
 			OutOfScope:              true,
 			JustificationOutOfScope: "Development client is not directly in-scope of the application.",
-			Size:                    model.System.String(),
-			Technology:              model.DevOpsClient.String(),
+			Size:                    types.System.String(),
+			Technology:              types.DevOpsClient.String(),
 			Tags:                    []string{},
 			Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-			Machine:                 model.Physical.String(),
+			Machine:                 types.Physical.String(),
 			Encryption:              encryption,
 			Owner:                   owner,
-			Confidentiality:         model.Confidential.String(),
-			Integrity:               model.Critical.String(),
-			Availability:            model.Important.String(),
+			Confidentiality:         types.Confidential.String(),
+			Integrity:               types.Critical.String(),
+			Availability:            types.Important.String(),
 			JustificationCiaRating: "Sourcecode processing components are at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 			MultiTenant:          false,
@@ -479,28 +480,28 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 	if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 		//fmt.Println("Adding technical asset:", id) // ################################################
 		serverSideTechAssets = append(serverSideTechAssets, id)
-		encryption := model.NoneEncryption.String()
+		encryption := types.NoneEncryption.String()
 		if strings.ToLower(macroState["encryption"][0]) == "yes" {
-			encryption = model.Transparent.String()
+			encryption = types.Transparent.String()
 		}
 		techAsset := model.InputTechnicalAsset{
 			ID:                      id,
 			Description:             macroState["source-repository"][0] + " Sourcecode Repository",
-			Type:                    model.Process.String(),
-			Usage:                   model.DevOps.String(),
+			Type:                    types.Process.String(),
+			Usage:                   types.DevOps.String(),
 			UsedAsClientByHuman:     false,
 			OutOfScope:              false,
 			JustificationOutOfScope: "",
-			Size:                    model.Service.String(),
-			Technology:              model.SourcecodeRepository.String(),
+			Size:                    types.Service.String(),
+			Technology:              types.SourcecodeRepository.String(),
 			Tags:                    []string{model.NormalizeTag(macroState["source-repository"][0])},
 			Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-			Machine:                 model.Virtual.String(),
+			Machine:                 types.Virtual.String(),
 			Encryption:              encryption,
 			Owner:                   owner,
-			Confidentiality:         model.Confidential.String(),
-			Integrity:               model.Critical.String(),
-			Availability:            model.Important.String(),
+			Confidentiality:         types.Confidential.String(),
+			Integrity:               types.Critical.String(),
+			Availability:            types.Important.String(),
 			JustificationCiaRating: "Sourcecode processing components are at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 			MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",
@@ -522,28 +523,28 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 			//fmt.Println("Adding technical asset:", id) // ################################################
 			serverSideTechAssets = append(serverSideTechAssets, id)
-			encryption := model.NoneEncryption.String()
+			encryption := types.NoneEncryption.String()
 			if strings.ToLower(macroState["encryption"][0]) == "yes" {
-				encryption = model.Transparent.String()
+				encryption = types.Transparent.String()
 			}
 			techAsset := model.InputTechnicalAsset{
 				ID:                      id,
 				Description:             macroState["container-registry"][0] + " Container Registry",
-				Type:                    model.Process.String(),
-				Usage:                   model.DevOps.String(),
+				Type:                    types.Process.String(),
+				Usage:                   types.DevOps.String(),
 				UsedAsClientByHuman:     false,
 				OutOfScope:              false,
 				JustificationOutOfScope: "",
-				Size:                    model.Service.String(),
-				Technology:              model.ArtifactRegistry.String(),
+				Size:                    types.Service.String(),
+				Technology:              types.ArtifactRegistry.String(),
 				Tags:                    []string{model.NormalizeTag(macroState["container-registry"][0])},
 				Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-				Machine:                 model.Virtual.String(),
+				Machine:                 types.Virtual.String(),
 				Encryption:              encryption,
 				Owner:                   owner,
-				Confidentiality:         model.Confidential.String(),
-				Integrity:               model.Critical.String(),
-				Availability:            model.Important.String(),
+				Confidentiality:         types.Confidential.String(),
+				Integrity:               types.Critical.String(),
+				Availability:            types.Important.String(),
 				JustificationCiaRating: "Container registry components are at least rated as 'critical' in terms of integrity, because any " +
 					"malicious modification of it might lead to a backdoored production system.",
 				MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",
@@ -564,28 +565,28 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 			//fmt.Println("Adding technical asset:", id) // ################################################
 			serverSideTechAssets = append(serverSideTechAssets, id)
-			encryption := model.NoneEncryption.String()
+			encryption := types.NoneEncryption.String()
 			if strings.ToLower(macroState["encryption"][0]) == "yes" {
-				encryption = model.Transparent.String()
+				encryption = types.Transparent.String()
 			}
 			techAsset := model.InputTechnicalAsset{
 				ID:                      id,
 				Description:             macroState["container-platform"][0] + " Container Platform",
-				Type:                    model.Process.String(),
-				Usage:                   model.DevOps.String(),
+				Type:                    types.Process.String(),
+				Usage:                   types.DevOps.String(),
 				UsedAsClientByHuman:     false,
 				OutOfScope:              false,
 				JustificationOutOfScope: "",
-				Size:                    model.System.String(),
-				Technology:              model.ContainerPlatform.String(),
+				Size:                    types.System.String(),
+				Technology:              types.ContainerPlatform.String(),
 				Tags:                    []string{model.NormalizeTag(macroState["container-platform"][0])},
 				Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-				Machine:                 model.Virtual.String(),
+				Machine:                 types.Virtual.String(),
 				Encryption:              encryption,
 				Owner:                   owner,
-				Confidentiality:         model.Confidential.String(),
-				Integrity:               model.MissionCritical.String(),
-				Availability:            model.MissionCritical.String(),
+				Confidentiality:         types.Confidential.String(),
+				Integrity:               types.MissionCritical.String(),
+				Availability:            types.MissionCritical.String(),
 				JustificationCiaRating: "Container platform components are rated as 'mission-critical' in terms of integrity and availability, because any " +
 					"malicious modification of it might lead to a backdoored production system.",
 				MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",
@@ -607,23 +608,23 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 	if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 		//fmt.Println("Adding technical asset:", id) // ################################################
 		serverSideTechAssets = append(serverSideTechAssets, id)
-		encryption := model.NoneEncryption.String()
+		encryption := types.NoneEncryption.String()
 		if strings.ToLower(macroState["encryption"][0]) == "yes" {
-			encryption = model.Transparent.String()
+			encryption = types.Transparent.String()
 		}
 
 		commLinks := make(map[string]model.InputCommunicationLink)
 		commLinks["Sourcecode Repository Traffic"] = model.InputCommunicationLink{
 			Target:                 sourceRepoID,
 			Description:            "Sourcecode Repository Traffic",
-			Protocol:               model.HTTPS.String(),
-			Authentication:         model.Credentials.String(),
-			Authorization:          model.TechnicalUser.String(),
+			Protocol:               types.HTTPS.String(),
+			Authentication:         types.Credentials.String(),
+			Authorization:          types.TechnicalUser.String(),
 			Tags:                   []string{},
 			VPN:                    false,
 			IpFiltered:             false,
 			Readonly:               true,
-			Usage:                  model.DevOps.String(),
+			Usage:                  types.DevOps.String(),
 			DataAssetsSent:         nil,
 			DataAssetsReceived:     []string{"sourcecode"},
 			DiagramTweakWeight:     0,
@@ -632,14 +633,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		commLinks["Artifact Registry Traffic"] = model.InputCommunicationLink{
 			Target:                 artifactRegistryID,
 			Description:            "Artifact Registry Traffic",
-			Protocol:               model.HTTPS.String(),
-			Authentication:         model.Credentials.String(),
-			Authorization:          model.TechnicalUser.String(),
+			Protocol:               types.HTTPS.String(),
+			Authentication:         types.Credentials.String(),
+			Authorization:          types.TechnicalUser.String(),
 			Tags:                   []string{},
 			VPN:                    false,
 			IpFiltered:             false,
 			Readonly:               false,
-			Usage:                  model.DevOps.String(),
+			Usage:                  types.DevOps.String(),
 			DataAssetsSent:         []string{"deployment"},
 			DataAssetsReceived:     []string{"deployment"},
 			DiagramTweakWeight:     0,
@@ -649,14 +650,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 			commLinks["Container Registry Traffic"] = model.InputCommunicationLink{
 				Target:                 containerRepoID,
 				Description:            "Container Registry Traffic",
-				Protocol:               model.HTTPS.String(),
-				Authentication:         model.Credentials.String(),
-				Authorization:          model.TechnicalUser.String(),
+				Protocol:               types.HTTPS.String(),
+				Authentication:         types.Credentials.String(),
+				Authorization:          types.TechnicalUser.String(),
 				Tags:                   []string{},
 				VPN:                    false,
 				IpFiltered:             false,
 				Readonly:               false,
-				Usage:                  model.DevOps.String(),
+				Usage:                  types.DevOps.String(),
 				DataAssetsSent:         []string{"deployment"},
 				DataAssetsReceived:     []string{"deployment"},
 				DiagramTweakWeight:     0,
@@ -666,14 +667,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 				commLinks["Container Platform Push"] = model.InputCommunicationLink{
 					Target:                 containerPlatformID,
 					Description:            "Container Platform Push",
-					Protocol:               model.HTTPS.String(),
-					Authentication:         model.Credentials.String(),
-					Authorization:          model.TechnicalUser.String(),
+					Protocol:               types.HTTPS.String(),
+					Authentication:         types.Credentials.String(),
+					Authorization:          types.TechnicalUser.String(),
 					Tags:                   []string{},
 					VPN:                    false,
 					IpFiltered:             false,
 					Readonly:               false,
-					Usage:                  model.DevOps.String(),
+					Usage:                  types.DevOps.String(),
 					DataAssetsSent:         []string{"deployment"},
 					DataAssetsReceived:     []string{"deployment"},
 					DiagramTweakWeight:     0,
@@ -683,14 +684,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 				commLinkPull := model.InputCommunicationLink{
 					Target:                 containerRepoID,
 					Description:            "Container Platform Pull",
-					Protocol:               model.HTTPS.String(),
-					Authentication:         model.Credentials.String(),
-					Authorization:          model.TechnicalUser.String(),
+					Protocol:               types.HTTPS.String(),
+					Authentication:         types.Credentials.String(),
+					Authorization:          types.TechnicalUser.String(),
 					Tags:                   []string{},
 					VPN:                    false,
 					IpFiltered:             false,
 					Readonly:               true,
-					Usage:                  model.DevOps.String(),
+					Usage:                  types.DevOps.String(),
 					DataAssetsSent:         nil,
 					DataAssetsReceived:     []string{"deployment"},
 					DiagramTweakWeight:     0,
@@ -711,14 +712,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 			commLinks["Code Inspection Platform Traffic"] = model.InputCommunicationLink{
 				Target:                 codeInspectionPlatformID,
 				Description:            "Code Inspection Platform Traffic",
-				Protocol:               model.HTTPS.String(),
-				Authentication:         model.Credentials.String(),
-				Authorization:          model.TechnicalUser.String(),
+				Protocol:               types.HTTPS.String(),
+				Authentication:         types.Credentials.String(),
+				Authorization:          types.TechnicalUser.String(),
 				Tags:                   []string{},
 				VPN:                    false,
 				IpFiltered:             false,
 				Readonly:               false,
-				Usage:                  model.DevOps.String(),
+				Usage:                  types.DevOps.String(),
 				DataAssetsSent:         []string{"sourcecode"},
 				DataAssetsReceived:     []string{},
 				DiagramTweakWeight:     0,
@@ -737,14 +738,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 					containerPlatform.CommunicationLinks["Container Spawning ("+deployTargetID+")"] = model.InputCommunicationLink{
 						Target:                 deployTargetID,
 						Description:            "Container Spawning " + deployTargetID,
-						Protocol:               model.ContainerSpawning.String(),
-						Authentication:         model.NoneAuthentication.String(),
-						Authorization:          model.NoneAuthorization.String(),
+						Protocol:               types.ContainerSpawning.String(),
+						Authentication:         types.NoneAuthentication.String(),
+						Authorization:          types.NoneAuthorization.String(),
 						Tags:                   []string{},
 						VPN:                    false,
 						IpFiltered:             false,
 						Readonly:               false,
-						Usage:                  model.DevOps.String(),
+						Usage:                  types.DevOps.String(),
 						DataAssetsSent:         []string{"deployment"},
 						DataAssetsReceived:     nil,
 						DiagramTweakWeight:     0,
@@ -757,14 +758,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 					commLinks["Deployment Push ("+deployTargetID+")"] = model.InputCommunicationLink{
 						Target:                 deployTargetID,
 						Description:            "Deployment Push to " + deployTargetID,
-						Protocol:               model.SSH.String(),
-						Authentication:         model.ClientCertificate.String(),
-						Authorization:          model.TechnicalUser.String(),
+						Protocol:               types.SSH.String(),
+						Authentication:         types.ClientCertificate.String(),
+						Authorization:          types.TechnicalUser.String(),
 						Tags:                   []string{},
 						VPN:                    false,
 						IpFiltered:             false,
 						Readonly:               false,
-						Usage:                  model.DevOps.String(),
+						Usage:                  types.DevOps.String(),
 						DataAssetsSent:         []string{"deployment"},
 						DataAssetsReceived:     nil,
 						DiagramTweakWeight:     0,
@@ -775,14 +776,14 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 					commLinkPull := model.InputCommunicationLink{
 						Target:                 pullFromWhere,
 						Description:            "Deployment Pull from " + deployTargetID,
-						Protocol:               model.HTTPS.String(),
-						Authentication:         model.Credentials.String(),
-						Authorization:          model.TechnicalUser.String(),
+						Protocol:               types.HTTPS.String(),
+						Authentication:         types.Credentials.String(),
+						Authorization:          types.TechnicalUser.String(),
 						Tags:                   []string{},
 						VPN:                    false,
 						IpFiltered:             false,
 						Readonly:               true,
-						Usage:                  model.DevOps.String(),
+						Usage:                  types.DevOps.String(),
 						DataAssetsSent:         nil,
 						DataAssetsReceived:     []string{"deployment"},
 						DiagramTweakWeight:     0,
@@ -825,21 +826,21 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		techAsset := model.InputTechnicalAsset{
 			ID:                      id,
 			Description:             macroState["build-pipeline"][0] + " Build Pipeline",
-			Type:                    model.Process.String(),
-			Usage:                   model.DevOps.String(),
+			Type:                    types.Process.String(),
+			Usage:                   types.DevOps.String(),
 			UsedAsClientByHuman:     false,
 			OutOfScope:              false,
 			JustificationOutOfScope: "",
-			Size:                    model.Service.String(),
-			Technology:              model.BuildPipeline.String(),
+			Size:                    types.Service.String(),
+			Technology:              types.BuildPipeline.String(),
 			Tags:                    []string{model.NormalizeTag(macroState["build-pipeline"][0])},
 			Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-			Machine:                 model.Virtual.String(),
+			Machine:                 types.Virtual.String(),
 			Encryption:              encryption,
 			Owner:                   owner,
-			Confidentiality:         model.Confidential.String(),
-			Integrity:               model.Critical.String(),
-			Availability:            model.Important.String(),
+			Confidentiality:         types.Confidential.String(),
+			Integrity:               types.Critical.String(),
+			Availability:            types.Important.String(),
 			JustificationCiaRating: "Build pipeline components are at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 			MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",
@@ -860,28 +861,28 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 	if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 		//fmt.Println("Adding technical asset:", id) // ################################################
 		serverSideTechAssets = append(serverSideTechAssets, id)
-		encryption := model.NoneEncryption.String()
+		encryption := types.NoneEncryption.String()
 		if strings.ToLower(macroState["encryption"][0]) == "yes" {
-			encryption = model.Transparent.String()
+			encryption = types.Transparent.String()
 		}
 		techAsset := model.InputTechnicalAsset{
 			ID:                      id,
 			Description:             macroState["artifact-registry"][0] + " Artifact Registry",
-			Type:                    model.Process.String(),
-			Usage:                   model.DevOps.String(),
+			Type:                    types.Process.String(),
+			Usage:                   types.DevOps.String(),
 			UsedAsClientByHuman:     false,
 			OutOfScope:              false,
 			JustificationOutOfScope: "",
-			Size:                    model.Service.String(),
-			Technology:              model.ArtifactRegistry.String(),
+			Size:                    types.Service.String(),
+			Technology:              types.ArtifactRegistry.String(),
 			Tags:                    []string{model.NormalizeTag(macroState["artifact-registry"][0])},
 			Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-			Machine:                 model.Virtual.String(),
+			Machine:                 types.Virtual.String(),
 			Encryption:              encryption,
 			Owner:                   owner,
-			Confidentiality:         model.Confidential.String(),
-			Integrity:               model.Critical.String(),
-			Availability:            model.Important.String(),
+			Confidentiality:         types.Confidential.String(),
+			Integrity:               types.Critical.String(),
+			Availability:            types.Important.String(),
 			JustificationCiaRating: "Artifact registry components are at least rated as 'critical' in terms of integrity, because any " +
 				"malicious modification of it might lead to a backdoored production system.",
 			MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",
@@ -903,28 +904,28 @@ func applyChange(modelInput *model.ModelInput, changeLogCollector *[]string, dry
 		if _, exists := model.ParsedModelRoot.TechnicalAssets[id]; !exists {
 			//fmt.Println("Adding technical asset:", id) // ################################################
 			serverSideTechAssets = append(serverSideTechAssets, id)
-			encryption := model.NoneEncryption.String()
+			encryption := types.NoneEncryption.String()
 			if strings.ToLower(macroState["encryption"][0]) == "yes" {
-				encryption = model.Transparent.String()
+				encryption = types.Transparent.String()
 			}
 			techAsset := model.InputTechnicalAsset{
 				ID:                      id,
 				Description:             macroState["code-inspection-platform"][0] + " Code Inspection Platform",
-				Type:                    model.Process.String(),
-				Usage:                   model.DevOps.String(),
+				Type:                    types.Process.String(),
+				Usage:                   types.DevOps.String(),
 				UsedAsClientByHuman:     false,
 				OutOfScope:              false,
 				JustificationOutOfScope: "",
-				Size:                    model.Service.String(),
-				Technology:              model.CodeInspectionPlatform.String(),
+				Size:                    types.Service.String(),
+				Technology:              types.CodeInspectionPlatform.String(),
 				Tags:                    []string{model.NormalizeTag(macroState["code-inspection-platform"][0])},
 				Internet:                strings.ToLower(macroState["internet"][0]) == "yes",
-				Machine:                 model.Virtual.String(),
+				Machine:                 types.Virtual.String(),
 				Encryption:              encryption,
 				Owner:                   owner,
-				Confidentiality:         model.Confidential.String(),
-				Integrity:               model.Important.String(),
-				Availability:            model.Operational.String(),
+				Confidentiality:         types.Confidential.String(),
+				Integrity:               types.Important.String(),
+				Availability:            types.Operational.String(),
 				JustificationCiaRating: "Sourcecode inspection platforms are rated at least 'important' in terms of integrity, because any " +
 					"malicious modification of it might lead to vulnerabilities found by the scanner engine not being shown.",
 				MultiTenant:          strings.ToLower(macroState["multi-tenant"][0]) == "yes",

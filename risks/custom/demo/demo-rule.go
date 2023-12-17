@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 type customRiskRule string
@@ -21,8 +22,8 @@ func (r customRiskRule) Category() model.RiskCategory {
 		Action:                     "Demo Action",
 		Mitigation:                 "Demo Mitigation",
 		Check:                      "Demo Check",
-		Function:                   model.Development,
-		STRIDE:                     model.Tampering,
+		Function:                   types.Development,
+		STRIDE:                     types.Tampering,
 		DetectionLogic:             "Demo Detection",
 		RiskAssessment:             "Demo Risk Assessment",
 		FalsePositives:             "Demo False Positive.",
@@ -46,12 +47,12 @@ func (r customRiskRule) GenerateRisks() []model.Risk {
 func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 	risk := model.Risk{
 		Category:                     CustomRiskRule.Category(),
-		Severity:                     model.CalculateSeverity(model.VeryLikely, model.MediumImpact),
-		ExploitationLikelihood:       model.VeryLikely,
-		ExploitationImpact:           model.MediumImpact,
+		Severity:                     model.CalculateSeverity(types.VeryLikely, types.MediumImpact),
+		ExploitationLikelihood:       types.VeryLikely,
+		ExploitationImpact:           types.MediumImpact,
 		Title:                        "<b>Demo</b> risk at <b>" + technicalAsset.Title + "</b>",
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Possible,
+		DataBreachProbability:        types.Possible,
 		DataBreachTechnicalAssetIDs:  []string{technicalAsset.Id},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id

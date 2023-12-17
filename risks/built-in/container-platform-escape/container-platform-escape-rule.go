@@ -2,6 +2,7 @@ package container_platform_escape
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -25,8 +26,8 @@ func Category() model.RiskCategory {
 			"Use only trusted base images, verify digital signatures and apply image creation best practices. Also consider using Google's <b>Distroless</i> base images or otherwise very small base images. " +
 			"Apply namespace isolation and nod affinity to separate pods from each other in terms of access and nodes the same style as you separate data.",
 		Check:          "Are recommendations from the linked cheat sheet and referenced ASVS or CSVS chapter applied?",
-		Function:       model.Operations,
-		STRIDE:         model.ElevationOfPrivilege,
+		Function:       types.Operations,
+		STRIDE:         types.ElevationOfPrivilege,
 		DetectionLogic: "In-scope container platforms.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the technical asset itself and of the data assets processed and stored.",
 		FalsePositives: "Container platforms not running parts of the target architecture can be considered " +
@@ -44,7 +45,7 @@ func GenerateRisks() []model.Risk {
 	risks := make([]model.Risk, 0)
 	for _, id := range model.SortedTechnicalAssetIDs() {
 		technicalAsset := model.ParsedModelRoot.TechnicalAssets[id]
-		if !technicalAsset.OutOfScope && technicalAsset.Technology == model.ContainerPlatform {
+		if !technicalAsset.OutOfScope && technicalAsset.Technology == types.ContainerPlatform {
 			risks = append(risks, createRisk(technicalAsset))
 		}
 	}
@@ -53,28 +54,28 @@ func GenerateRisks() []model.Risk {
 
 func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 	title := "<b>Container Platform Escape</b> risk at <b>" + technicalAsset.Title + "</b>"
-	impact := model.MediumImpact
-	if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential ||
-		technicalAsset.HighestIntegrity() == model.MissionCritical ||
-		technicalAsset.HighestAvailability() == model.MissionCritical {
-		impact = model.HighImpact
+	impact := types.MediumImpact
+	if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential ||
+		technicalAsset.HighestIntegrity() == types.MissionCritical ||
+		technicalAsset.HighestAvailability() == types.MissionCritical {
+		impact = types.HighImpact
 	}
 	// data breach at all container assets
 	dataBreachTechnicalAssetIDs := make([]string, 0)
 	for id, techAsset := range model.ParsedModelRoot.TechnicalAssets {
-		if techAsset.Machine == model.Container {
+		if techAsset.Machine == types.Container {
 			dataBreachTechnicalAssetIDs = append(dataBreachTechnicalAssetIDs, id)
 		}
 	}
 	// create risk
 	risk := model.Risk{
 		Category:                     Category(),
-		Severity:                     model.CalculateSeverity(model.Unlikely, impact),
-		ExploitationLikelihood:       model.Unlikely,
+		Severity:                     model.CalculateSeverity(types.Unlikely, impact),
+		ExploitationLikelihood:       types.Unlikely,
 		ExploitationImpact:           impact,
 		Title:                        title,
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Probable,
+		DataBreachProbability:        types.Probable,
 		DataBreachTechnicalAssetIDs:  dataBreachTechnicalAssetIDs,
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id

@@ -88,6 +88,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/threagile/threagile/pkg/docs"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 const keepDiagramSourceFiles = false
@@ -1511,27 +1512,27 @@ func startServer() {
 	})
 	router.GET("/meta/types", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"quantity":                     arrayOfStringValues(model.QuantityValues()),
-			"confidentiality":              arrayOfStringValues(model.ConfidentialityValues()),
-			"criticality":                  arrayOfStringValues(model.CriticalityValues()),
-			"technical_asset_type":         arrayOfStringValues(model.TechnicalAssetTypeValues()),
-			"technical_asset_size":         arrayOfStringValues(model.TechnicalAssetSizeValues()),
-			"authorization":                arrayOfStringValues(model.AuthorizationValues()),
-			"authentication":               arrayOfStringValues(model.AuthenticationValues()),
-			"usage":                        arrayOfStringValues(model.UsageValues()),
-			"encryption":                   arrayOfStringValues(model.EncryptionStyleValues()),
-			"data_format":                  arrayOfStringValues(model.DataFormatValues()),
-			"protocol":                     arrayOfStringValues(model.ProtocolValues()),
-			"technical_asset_technology":   arrayOfStringValues(model.TechnicalAssetTechnologyValues()),
-			"technical_asset_machine":      arrayOfStringValues(model.TechnicalAssetMachineValues()),
-			"trust_boundary_type":          arrayOfStringValues(model.TrustBoundaryTypeValues()),
-			"data_breach_probability":      arrayOfStringValues(model.DataBreachProbabilityValues()),
-			"risk_severity":                arrayOfStringValues(model.RiskSeverityValues()),
-			"risk_exploitation_likelihood": arrayOfStringValues(model.RiskExploitationLikelihoodValues()),
-			"risk_exploitation_impact":     arrayOfStringValues(model.RiskExploitationImpactValues()),
-			"risk_function":                arrayOfStringValues(model.RiskFunctionValues()),
-			"risk_status":                  arrayOfStringValues(model.RiskStatusValues()),
-			"stride":                       arrayOfStringValues(model.STRIDEValues()),
+			"quantity":                     arrayOfStringValues(types.QuantityValues()),
+			"confidentiality":              arrayOfStringValues(types.ConfidentialityValues()),
+			"criticality":                  arrayOfStringValues(types.CriticalityValues()),
+			"technical_asset_type":         arrayOfStringValues(types.TechnicalAssetTypeValues()),
+			"technical_asset_size":         arrayOfStringValues(types.TechnicalAssetSizeValues()),
+			"authorization":                arrayOfStringValues(types.AuthorizationValues()),
+			"authentication":               arrayOfStringValues(types.AuthenticationValues()),
+			"usage":                        arrayOfStringValues(types.UsageValues()),
+			"encryption":                   arrayOfStringValues(types.EncryptionStyleValues()),
+			"data_format":                  arrayOfStringValues(types.DataFormatValues()),
+			"protocol":                     arrayOfStringValues(types.ProtocolValues()),
+			"technical_asset_technology":   arrayOfStringValues(types.TechnicalAssetTechnologyValues()),
+			"technical_asset_machine":      arrayOfStringValues(types.TechnicalAssetMachineValues()),
+			"trust_boundary_type":          arrayOfStringValues(types.TrustBoundaryTypeValues()),
+			"data_breach_probability":      arrayOfStringValues(types.DataBreachProbabilityValues()),
+			"risk_severity":                arrayOfStringValues(types.RiskSeverityValues()),
+			"risk_exploitation_likelihood": arrayOfStringValues(types.RiskExploitationLikelihoodValues()),
+			"risk_exploitation_impact":     arrayOfStringValues(types.RiskExploitationImpactValues()),
+			"risk_function":                arrayOfStringValues(types.RiskFunctionValues()),
+			"risk_status":                  arrayOfStringValues(types.RiskStatusValues()),
+			"stride":                       arrayOfStringValues(types.STRIDEValues()),
 		})
 	})
 
@@ -2672,27 +2673,27 @@ func createNewDataAsset(context *gin.Context) {
 }
 
 func populateDataAsset(context *gin.Context, payload payloadDataAsset) (dataAssetInput model.InputDataAsset, ok bool) {
-	usage, err := model.ParseUsage(payload.Usage)
+	usage, err := types.ParseUsage(payload.Usage)
 	if err != nil {
 		handleErrorInServiceCall(err, context)
 		return dataAssetInput, false
 	}
-	quantity, err := model.ParseQuantity(payload.Quantity)
+	quantity, err := types.ParseQuantity(payload.Quantity)
 	if err != nil {
 		handleErrorInServiceCall(err, context)
 		return dataAssetInput, false
 	}
-	confidentiality, err := model.ParseConfidentiality(payload.Confidentiality)
+	confidentiality, err := types.ParseConfidentiality(payload.Confidentiality)
 	if err != nil {
 		handleErrorInServiceCall(err, context)
 		return dataAssetInput, false
 	}
-	integrity, err := model.ParseCriticality(payload.Integrity)
+	integrity, err := types.ParseCriticality(payload.Integrity)
 	if err != nil {
 		handleErrorInServiceCall(err, context)
 		return dataAssetInput, false
 	}
-	availability, err := model.ParseCriticality(payload.Availability)
+	availability, err := types.ParseCriticality(payload.Availability)
 	if err != nil {
 		handleErrorInServiceCall(err, context)
 		return dataAssetInput, false
@@ -2752,7 +2753,7 @@ func getSharedRuntimes(context *gin.Context) {
 	}
 }
 
-func arrayOfStringValues(values []model.TypeEnum) []string {
+func arrayOfStringValues(values []types.TypeEnum) []string {
 	result := make([]string, 0)
 	for _, value := range values {
 		result = append(result, value.String())
@@ -2931,7 +2932,7 @@ func setOverview(context *gin.Context) {
 			})
 			return
 		}
-		criticality, err := model.ParseCriticality(payload.BusinessCriticality)
+		criticality, err := types.ParseCriticality(payload.BusinessCriticality)
 		if err != nil {
 			handleErrorInServiceCall(err, context)
 			return
@@ -3620,7 +3621,6 @@ func parseCommandlineArgs() {
 	riskRulesPlugins = flag.String("custom-risk-rules-plugins", "", "comma-separated list of plugins (.so shared object) file names with custom risk rules to load")
 	verbose = flag.Bool("verbose", false, "verbose output")
 	ignoreOrphanedRiskTracking = flag.Bool("ignore-orphaned-risk-tracking", false, "ignore orphaned risk tracking (just log them) not matching a concrete risk")
-	listTypes := flag.Bool("list-types", false, "print type information (enum values to be used in models)")
 	listRiskRules := flag.Bool("list-risk-rules", false, "print risk rules")
 	explainTypes := flag.Bool("explain-types", false, "Detailed explanation of all the types")
 	explainRiskRules := flag.Bool("explain-risk-rules", false, "Detailed explanation of all the risk rules")
@@ -3632,54 +3632,6 @@ func parseCommandlineArgs() {
 		*diagramDPI = 20
 	} else if *diagramDPI > maxGraphvizDPI {
 		*diagramDPI = 300
-	}
-	if *listTypes {
-		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
-		fmt.Println("The following types are available (can be extended for custom rules):")
-		fmt.Println()
-		printTypes("Authentication", model.AuthenticationValues())
-		fmt.Println()
-		printTypes("Authorization", model.AuthorizationValues())
-		fmt.Println()
-		printTypes("Confidentiality", model.ConfidentialityValues())
-		fmt.Println()
-		printTypes("Criticality (for integrity and availability)", model.CriticalityValues())
-		fmt.Println()
-		printTypes("Data Breach Probability", model.DataBreachProbabilityValues())
-		fmt.Println()
-		printTypes("Data Format", model.DataFormatValues())
-		fmt.Println()
-		printTypes("Encryption", model.EncryptionStyleValues())
-		fmt.Println()
-		printTypes("Protocol", model.ProtocolValues())
-		fmt.Println()
-		printTypes("Quantity", model.QuantityValues())
-		fmt.Println()
-		printTypes("Risk Exploitation Impact", model.RiskExploitationImpactValues())
-		fmt.Println()
-		printTypes("Risk Exploitation Likelihood", model.RiskExploitationLikelihoodValues())
-		fmt.Println()
-		printTypes("Risk Function", model.RiskFunctionValues())
-		fmt.Println()
-		printTypes("Risk Severity", model.RiskSeverityValues())
-		fmt.Println()
-		printTypes("Risk Status", model.RiskStatusValues())
-		fmt.Println()
-		printTypes("STRIDE", model.STRIDEValues())
-		fmt.Println()
-		printTypes("Technical Asset Machine", model.TechnicalAssetMachineValues())
-		fmt.Println()
-		printTypes("Technical Asset Size", model.TechnicalAssetSizeValues())
-		fmt.Println()
-		printTypes("Technical Asset Technology", model.TechnicalAssetTechnologyValues())
-		fmt.Println()
-		printTypes("Technical Asset Type", model.TechnicalAssetTypeValues())
-		fmt.Println()
-		printTypes("Trust Boundary Type", model.TrustBoundaryTypeValues())
-		fmt.Println()
-		printTypes("Usage", model.UsageValues())
-		fmt.Println()
-		os.Exit(0)
 	}
 	if *listRiskRules {
 		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
@@ -3745,27 +3697,27 @@ func parseCommandlineArgs() {
 		fmt.Println(docs.Logo + "\n\n" + docs.VersionText)
 		fmt.Println("Explanation for the types:")
 		fmt.Println()
-		printExplainTypes("Authentication", model.AuthenticationValues())
-		printExplainTypes("Authorization", model.AuthorizationValues())
-		printExplainTypes("Confidentiality", model.ConfidentialityValues())
-		printExplainTypes("Criticality", model.CriticalityValues())
-		printExplainTypes("Data Breach Probability", model.DataBreachProbabilityValues())
-		printExplainTypes("Data Format", model.DataFormatValues())
-		printExplainTypes("Encryption", model.EncryptionStyleValues())
-		printExplainTypes("Protocol", model.ProtocolValues())
-		printExplainTypes("Quantity", model.QuantityValues())
-		printExplainTypes("Risk Exploitation Impact", model.RiskExploitationImpactValues())
-		printExplainTypes("Risk Exploitation likelihood", model.RiskExploitationLikelihoodValues())
-		printExplainTypes("Risk Function", model.RiskFunctionValues())
-		printExplainTypes("Risk Severity", model.RiskSeverityValues())
-		printExplainTypes("Risk Status", model.RiskStatusValues())
-		printExplainTypes("STRIDE", model.STRIDEValues())
-		printExplainTypes("Technical Asset Machine", model.TechnicalAssetMachineValues())
-		printExplainTypes("Technical Asset Size", model.TechnicalAssetSizeValues())
-		printExplainTypes("Technical Asset Technology", model.TechnicalAssetTechnologyValues())
-		printExplainTypes("Technical Asset Type", model.TechnicalAssetTypeValues())
-		printExplainTypes("Trust Boundary Type", model.TrustBoundaryTypeValues())
-		printExplainTypes("Usage", model.UsageValues())
+		printExplainTypes("Authentication", types.AuthenticationValues())
+		printExplainTypes("Authorization", types.AuthorizationValues())
+		printExplainTypes("Confidentiality", types.ConfidentialityValues())
+		printExplainTypes("Criticality", types.CriticalityValues())
+		printExplainTypes("Data Breach Probability", types.DataBreachProbabilityValues())
+		printExplainTypes("Data Format", types.DataFormatValues())
+		printExplainTypes("Encryption", types.EncryptionStyleValues())
+		printExplainTypes("Protocol", types.ProtocolValues())
+		printExplainTypes("Quantity", types.QuantityValues())
+		printExplainTypes("Risk Exploitation Impact", types.RiskExploitationImpactValues())
+		printExplainTypes("Risk Exploitation likelihood", types.RiskExploitationLikelihoodValues())
+		printExplainTypes("Risk Function", types.RiskFunctionValues())
+		printExplainTypes("Risk Severity", types.RiskSeverityValues())
+		printExplainTypes("Risk Status", types.RiskStatusValues())
+		printExplainTypes("STRIDE", types.STRIDEValues())
+		printExplainTypes("Technical Asset Machine", types.TechnicalAssetMachineValues())
+		printExplainTypes("Technical Asset Size", types.TechnicalAssetSizeValues())
+		printExplainTypes("Technical Asset Technology", types.TechnicalAssetTechnologyValues())
+		printExplainTypes("Technical Asset Type", types.TechnicalAssetTypeValues())
+		printExplainTypes("Trust Boundary Type", types.TrustBoundaryTypeValues())
+		printExplainTypes("Usage", types.UsageValues())
 
 		os.Exit(0)
 	}
@@ -3912,7 +3864,7 @@ func printTypes(title string, value interface{}) {
 }
 
 // explainTypes prints and explanation block and a header
-func printExplainTypes(title string, value []model.TypeEnum) {
+func printExplainTypes(title string, value []types.TypeEnum) {
 	fmt.Println(title)
 	for _, candidate := range value {
 		fmt.Printf("\t %v: %v\n", candidate, candidate.Explain())
@@ -3955,18 +3907,18 @@ func parseModel(inputFilename string) {
 		checkErr(err)
 		//fmt.Println(modelInput)
 
-		var businessCriticality model.Criticality
+		var businessCriticality types.Criticality
 		switch modelInput.BusinessCriticality {
-		case model.Archive.String():
-			businessCriticality = model.Archive
-		case model.Operational.String():
-			businessCriticality = model.Operational
-		case model.Important.String():
-			businessCriticality = model.Important
-		case model.Critical.String():
-			businessCriticality = model.Critical
-		case model.MissionCritical.String():
-			businessCriticality = model.MissionCritical
+		case types.Archive.String():
+			businessCriticality = types.Archive
+		case types.Operational.String():
+			businessCriticality = types.Operational
+		case types.Important.String():
+			businessCriticality = types.Important
+		case types.Critical.String():
+			businessCriticality = types.Critical
+		case types.MissionCritical.String():
+			businessCriticality = types.MissionCritical
 		default:
 			panic(errors.New("unknown 'business_criticality' value of application: " + modelInput.BusinessCriticality))
 		}
@@ -4011,74 +3963,74 @@ func parseModel(inputFilename string) {
 		for title, asset := range modelInput.DataAssets {
 			id := fmt.Sprintf("%v", asset.ID)
 
-			var usage model.Usage
+			var usage types.Usage
 			switch asset.Usage {
-			case model.Business.String():
-				usage = model.Business
-			case model.DevOps.String():
-				usage = model.DevOps
+			case types.Business.String():
+				usage = types.Business
+			case types.DevOps.String():
+				usage = types.DevOps
 			default:
 				panic(errors.New("unknown 'usage' value of data asset '" + title + "': " + asset.Usage))
 			}
 
-			var quantity model.Quantity
+			var quantity types.Quantity
 			switch asset.Quantity {
-			case model.VeryFew.String():
-				quantity = model.VeryFew
-			case model.Few.String():
-				quantity = model.Few
-			case model.Many.String():
-				quantity = model.Many
-			case model.VeryMany.String():
-				quantity = model.VeryMany
+			case types.VeryFew.String():
+				quantity = types.VeryFew
+			case types.Few.String():
+				quantity = types.Few
+			case types.Many.String():
+				quantity = types.Many
+			case types.VeryMany.String():
+				quantity = types.VeryMany
 			default:
 				panic(errors.New("unknown 'quantity' value of data asset '" + title + "': " + asset.Quantity))
 			}
 
-			var confidentiality model.Confidentiality
+			var confidentiality types.Confidentiality
 			switch asset.Confidentiality {
-			case model.Public.String():
-				confidentiality = model.Public
-			case model.Internal.String():
-				confidentiality = model.Internal
-			case model.Restricted.String():
-				confidentiality = model.Restricted
-			case model.Confidential.String():
-				confidentiality = model.Confidential
-			case model.StrictlyConfidential.String():
-				confidentiality = model.StrictlyConfidential
+			case types.Public.String():
+				confidentiality = types.Public
+			case types.Internal.String():
+				confidentiality = types.Internal
+			case types.Restricted.String():
+				confidentiality = types.Restricted
+			case types.Confidential.String():
+				confidentiality = types.Confidential
+			case types.StrictlyConfidential.String():
+				confidentiality = types.StrictlyConfidential
 			default:
 				panic(errors.New("unknown 'confidentiality' value of data asset '" + title + "': " + asset.Confidentiality))
 			}
 
-			var integrity model.Criticality
+			var integrity types.Criticality
 			switch asset.Integrity {
-			case model.Archive.String():
-				integrity = model.Archive
-			case model.Operational.String():
-				integrity = model.Operational
-			case model.Important.String():
-				integrity = model.Important
-			case model.Critical.String():
-				integrity = model.Critical
-			case model.MissionCritical.String():
-				integrity = model.MissionCritical
+			case types.Archive.String():
+				integrity = types.Archive
+			case types.Operational.String():
+				integrity = types.Operational
+			case types.Important.String():
+				integrity = types.Important
+			case types.Critical.String():
+				integrity = types.Critical
+			case types.MissionCritical.String():
+				integrity = types.MissionCritical
 			default:
 				panic(errors.New("unknown 'integrity' value of data asset '" + title + "': " + asset.Integrity))
 			}
 
-			var availability model.Criticality
+			var availability types.Criticality
 			switch asset.Availability {
-			case model.Archive.String():
-				availability = model.Archive
-			case model.Operational.String():
-				availability = model.Operational
-			case model.Important.String():
-				availability = model.Important
-			case model.Critical.String():
-				availability = model.Critical
-			case model.MissionCritical.String():
-				availability = model.MissionCritical
+			case types.Archive.String():
+				availability = types.Archive
+			case types.Operational.String():
+				availability = types.Operational
+			case types.Important.String():
+				availability = types.Important
+			case types.Critical.String():
+				availability = types.Critical
+			case types.MissionCritical.String():
+				availability = types.MissionCritical
 			default:
 				panic(errors.New("unknown 'availability' value of data asset '" + title + "': " + asset.Availability))
 			}
@@ -4108,12 +4060,12 @@ func parseModel(inputFilename string) {
 		for title, asset := range modelInput.TechnicalAssets {
 			id := fmt.Sprintf("%v", asset.ID)
 
-			var usage model.Usage
+			var usage types.Usage
 			switch asset.Usage {
-			case model.Business.String():
-				usage = model.Business
-			case model.DevOps.String():
-				usage = model.DevOps
+			case types.Business.String():
+				usage = types.Business
+			case types.DevOps.String():
+				usage = types.DevOps
 			default:
 				panic(errors.New("unknown 'usage' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Usage)))
 			}
@@ -4138,244 +4090,244 @@ func parseModel(inputFilename string) {
 				}
 			}
 
-			var technicalAssetType model.TechnicalAssetType
+			var technicalAssetType types.TechnicalAssetType
 			switch asset.Type {
-			case model.ExternalEntity.String():
-				technicalAssetType = model.ExternalEntity
-			case model.Process.String():
-				technicalAssetType = model.Process
-			case model.Datastore.String():
-				technicalAssetType = model.Datastore
+			case types.ExternalEntity.String():
+				technicalAssetType = types.ExternalEntity
+			case types.Process.String():
+				technicalAssetType = types.Process
+			case types.Datastore.String():
+				technicalAssetType = types.Datastore
 			default:
 				panic(errors.New("unknown 'type' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Type)))
 			}
 
-			var technicalAssetSize model.TechnicalAssetSize
+			var technicalAssetSize types.TechnicalAssetSize
 			switch asset.Size {
-			case model.Service.String():
-				technicalAssetSize = model.Service
-			case model.System.String():
-				technicalAssetSize = model.System
-			case model.Application.String():
-				technicalAssetSize = model.Application
-			case model.Component.String():
-				technicalAssetSize = model.Component
+			case types.Service.String():
+				technicalAssetSize = types.Service
+			case types.System.String():
+				technicalAssetSize = types.System
+			case types.Application.String():
+				technicalAssetSize = types.Application
+			case types.Component.String():
+				technicalAssetSize = types.Component
 			default:
 				panic(errors.New("unknown 'size' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Size)))
 			}
 
-			var technicalAssetTechnology model.TechnicalAssetTechnology
+			var technicalAssetTechnology types.TechnicalAssetTechnology
 			switch asset.Technology {
-			case model.UnknownTechnology.String():
-				technicalAssetTechnology = model.UnknownTechnology
-			case model.ClientSystem.String():
-				technicalAssetTechnology = model.ClientSystem
-			case model.Browser.String():
-				technicalAssetTechnology = model.Browser
-			case model.Desktop.String():
-				technicalAssetTechnology = model.Desktop
-			case model.MobileApp.String():
-				technicalAssetTechnology = model.MobileApp
-			case model.DevOpsClient.String():
-				technicalAssetTechnology = model.DevOpsClient
-			case model.WebServer.String():
-				technicalAssetTechnology = model.WebServer
-			case model.WebApplication.String():
-				technicalAssetTechnology = model.WebApplication
-			case model.ApplicationServer.String():
-				technicalAssetTechnology = model.ApplicationServer
-			case model.Database.String():
-				technicalAssetTechnology = model.Database
-			case model.FileServer.String():
-				technicalAssetTechnology = model.FileServer
-			case model.LocalFileSystem.String():
-				technicalAssetTechnology = model.LocalFileSystem
-			case model.ERP.String():
-				technicalAssetTechnology = model.ERP
-			case model.CMS.String():
-				technicalAssetTechnology = model.CMS
-			case model.WebServiceREST.String():
-				technicalAssetTechnology = model.WebServiceREST
-			case model.WebServiceSOAP.String():
-				technicalAssetTechnology = model.WebServiceSOAP
-			case model.EJB.String():
-				technicalAssetTechnology = model.EJB
-			case model.SearchIndex.String():
-				technicalAssetTechnology = model.SearchIndex
-			case model.SearchEngine.String():
-				technicalAssetTechnology = model.SearchEngine
-			case model.ServiceRegistry.String():
-				technicalAssetTechnology = model.ServiceRegistry
-			case model.ReverseProxy.String():
-				technicalAssetTechnology = model.ReverseProxy
-			case model.LoadBalancer.String():
-				technicalAssetTechnology = model.LoadBalancer
-			case model.BuildPipeline.String():
-				technicalAssetTechnology = model.BuildPipeline
-			case model.SourcecodeRepository.String():
-				technicalAssetTechnology = model.SourcecodeRepository
-			case model.ArtifactRegistry.String():
-				technicalAssetTechnology = model.ArtifactRegistry
-			case model.CodeInspectionPlatform.String():
-				technicalAssetTechnology = model.CodeInspectionPlatform
-			case model.Monitoring.String():
-				technicalAssetTechnology = model.Monitoring
-			case model.LDAPServer.String():
-				technicalAssetTechnology = model.LDAPServer
-			case model.ContainerPlatform.String():
-				technicalAssetTechnology = model.ContainerPlatform
-			case model.BatchProcessing.String():
-				technicalAssetTechnology = model.BatchProcessing
-			case model.EventListener.String():
-				technicalAssetTechnology = model.EventListener
-			case model.IdentityProvider.String():
-				technicalAssetTechnology = model.IdentityProvider
-			case model.IdentityStoreLDAP.String():
-				technicalAssetTechnology = model.IdentityStoreLDAP
-			case model.IdentityStoreDatabase.String():
-				technicalAssetTechnology = model.IdentityStoreDatabase
-			case model.Tool.String():
-				technicalAssetTechnology = model.Tool
-			case model.CLI.String():
-				technicalAssetTechnology = model.CLI
-			case model.Task.String():
-				technicalAssetTechnology = model.Task
-			case model.Function.String():
-				technicalAssetTechnology = model.Function
-			case model.Gateway.String():
-				technicalAssetTechnology = model.Gateway
-			case model.IoTDevice.String():
-				technicalAssetTechnology = model.IoTDevice
-			case model.MessageQueue.String():
-				technicalAssetTechnology = model.MessageQueue
-			case model.StreamProcessing.String():
-				technicalAssetTechnology = model.StreamProcessing
-			case model.ServiceMesh.String():
-				technicalAssetTechnology = model.ServiceMesh
-			case model.DataLake.String():
-				technicalAssetTechnology = model.DataLake
-			case model.BigDataPlatform.String():
-				technicalAssetTechnology = model.BigDataPlatform
-			case model.ReportEngine.String():
-				technicalAssetTechnology = model.ReportEngine
-			case model.AI.String():
-				technicalAssetTechnology = model.AI
-			case model.MailServer.String():
-				technicalAssetTechnology = model.MailServer
-			case model.Vault.String():
-				technicalAssetTechnology = model.Vault
-			case model.HSM.String():
-				technicalAssetTechnology = model.HSM
-			case model.WAF.String():
-				technicalAssetTechnology = model.WAF
-			case model.IDS.String():
-				technicalAssetTechnology = model.IDS
-			case model.IPS.String():
-				technicalAssetTechnology = model.IPS
-			case model.Scheduler.String():
-				technicalAssetTechnology = model.Scheduler
-			case model.Mainframe.String():
-				technicalAssetTechnology = model.Mainframe
-			case model.BlockStorage.String():
-				technicalAssetTechnology = model.BlockStorage
-			case model.Library.String():
-				technicalAssetTechnology = model.Library
+			case types.UnknownTechnology.String():
+				technicalAssetTechnology = types.UnknownTechnology
+			case types.ClientSystem.String():
+				technicalAssetTechnology = types.ClientSystem
+			case types.Browser.String():
+				technicalAssetTechnology = types.Browser
+			case types.Desktop.String():
+				technicalAssetTechnology = types.Desktop
+			case types.MobileApp.String():
+				technicalAssetTechnology = types.MobileApp
+			case types.DevOpsClient.String():
+				technicalAssetTechnology = types.DevOpsClient
+			case types.WebServer.String():
+				technicalAssetTechnology = types.WebServer
+			case types.WebApplication.String():
+				technicalAssetTechnology = types.WebApplication
+			case types.ApplicationServer.String():
+				technicalAssetTechnology = types.ApplicationServer
+			case types.Database.String():
+				technicalAssetTechnology = types.Database
+			case types.FileServer.String():
+				technicalAssetTechnology = types.FileServer
+			case types.LocalFileSystem.String():
+				technicalAssetTechnology = types.LocalFileSystem
+			case types.ERP.String():
+				technicalAssetTechnology = types.ERP
+			case types.CMS.String():
+				technicalAssetTechnology = types.CMS
+			case types.WebServiceREST.String():
+				technicalAssetTechnology = types.WebServiceREST
+			case types.WebServiceSOAP.String():
+				technicalAssetTechnology = types.WebServiceSOAP
+			case types.EJB.String():
+				technicalAssetTechnology = types.EJB
+			case types.SearchIndex.String():
+				technicalAssetTechnology = types.SearchIndex
+			case types.SearchEngine.String():
+				technicalAssetTechnology = types.SearchEngine
+			case types.ServiceRegistry.String():
+				technicalAssetTechnology = types.ServiceRegistry
+			case types.ReverseProxy.String():
+				technicalAssetTechnology = types.ReverseProxy
+			case types.LoadBalancer.String():
+				technicalAssetTechnology = types.LoadBalancer
+			case types.BuildPipeline.String():
+				technicalAssetTechnology = types.BuildPipeline
+			case types.SourcecodeRepository.String():
+				technicalAssetTechnology = types.SourcecodeRepository
+			case types.ArtifactRegistry.String():
+				technicalAssetTechnology = types.ArtifactRegistry
+			case types.CodeInspectionPlatform.String():
+				technicalAssetTechnology = types.CodeInspectionPlatform
+			case types.Monitoring.String():
+				technicalAssetTechnology = types.Monitoring
+			case types.LDAPServer.String():
+				technicalAssetTechnology = types.LDAPServer
+			case types.ContainerPlatform.String():
+				technicalAssetTechnology = types.ContainerPlatform
+			case types.BatchProcessing.String():
+				technicalAssetTechnology = types.BatchProcessing
+			case types.EventListener.String():
+				technicalAssetTechnology = types.EventListener
+			case types.IdentityProvider.String():
+				technicalAssetTechnology = types.IdentityProvider
+			case types.IdentityStoreLDAP.String():
+				technicalAssetTechnology = types.IdentityStoreLDAP
+			case types.IdentityStoreDatabase.String():
+				technicalAssetTechnology = types.IdentityStoreDatabase
+			case types.Tool.String():
+				technicalAssetTechnology = types.Tool
+			case types.CLI.String():
+				technicalAssetTechnology = types.CLI
+			case types.Task.String():
+				technicalAssetTechnology = types.Task
+			case types.Function.String():
+				technicalAssetTechnology = types.Function
+			case types.Gateway.String():
+				technicalAssetTechnology = types.Gateway
+			case types.IoTDevice.String():
+				technicalAssetTechnology = types.IoTDevice
+			case types.MessageQueue.String():
+				technicalAssetTechnology = types.MessageQueue
+			case types.StreamProcessing.String():
+				technicalAssetTechnology = types.StreamProcessing
+			case types.ServiceMesh.String():
+				technicalAssetTechnology = types.ServiceMesh
+			case types.DataLake.String():
+				technicalAssetTechnology = types.DataLake
+			case types.BigDataPlatform.String():
+				technicalAssetTechnology = types.BigDataPlatform
+			case types.ReportEngine.String():
+				technicalAssetTechnology = types.ReportEngine
+			case types.AI.String():
+				technicalAssetTechnology = types.AI
+			case types.MailServer.String():
+				technicalAssetTechnology = types.MailServer
+			case types.Vault.String():
+				technicalAssetTechnology = types.Vault
+			case types.HSM.String():
+				technicalAssetTechnology = types.HSM
+			case types.WAF.String():
+				technicalAssetTechnology = types.WAF
+			case types.IDS.String():
+				technicalAssetTechnology = types.IDS
+			case types.IPS.String():
+				technicalAssetTechnology = types.IPS
+			case types.Scheduler.String():
+				technicalAssetTechnology = types.Scheduler
+			case types.Mainframe.String():
+				technicalAssetTechnology = types.Mainframe
+			case types.BlockStorage.String():
+				technicalAssetTechnology = types.BlockStorage
+			case types.Library.String():
+				technicalAssetTechnology = types.Library
 			default:
 				panic(errors.New("unknown 'technology' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Technology)))
 			}
 
-			var encryption model.EncryptionStyle
+			var encryption types.EncryptionStyle
 			switch asset.Encryption {
-			case model.NoneEncryption.String():
-				encryption = model.NoneEncryption
-			case model.Transparent.String():
-				encryption = model.Transparent
-			case model.DataWithSymmetricSharedKey.String():
-				encryption = model.DataWithSymmetricSharedKey
-			case model.DataWithAsymmetricSharedKey.String():
-				encryption = model.DataWithAsymmetricSharedKey
-			case model.DataWithEndUserIndividualKey.String():
-				encryption = model.DataWithEndUserIndividualKey
+			case types.NoneEncryption.String():
+				encryption = types.NoneEncryption
+			case types.Transparent.String():
+				encryption = types.Transparent
+			case types.DataWithSymmetricSharedKey.String():
+				encryption = types.DataWithSymmetricSharedKey
+			case types.DataWithAsymmetricSharedKey.String():
+				encryption = types.DataWithAsymmetricSharedKey
+			case types.DataWithEndUserIndividualKey.String():
+				encryption = types.DataWithEndUserIndividualKey
 			default:
 				panic(errors.New("unknown 'encryption' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Encryption)))
 			}
 
-			var technicalAssetMachine model.TechnicalAssetMachine
+			var technicalAssetMachine types.TechnicalAssetMachine
 			switch asset.Machine {
-			case model.Physical.String():
-				technicalAssetMachine = model.Physical
-			case model.Virtual.String():
-				technicalAssetMachine = model.Virtual
-			case model.Container.String():
-				technicalAssetMachine = model.Container
-			case model.Serverless.String():
-				technicalAssetMachine = model.Serverless
+			case types.Physical.String():
+				technicalAssetMachine = types.Physical
+			case types.Virtual.String():
+				technicalAssetMachine = types.Virtual
+			case types.Container.String():
+				technicalAssetMachine = types.Container
+			case types.Serverless.String():
+				technicalAssetMachine = types.Serverless
 			default:
 				panic(errors.New("unknown 'machine' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Machine)))
 			}
 
-			var confidentiality model.Confidentiality
+			var confidentiality types.Confidentiality
 			switch asset.Confidentiality {
-			case model.Public.String():
-				confidentiality = model.Public
-			case model.Internal.String():
-				confidentiality = model.Internal
-			case model.Restricted.String():
-				confidentiality = model.Restricted
-			case model.Confidential.String():
-				confidentiality = model.Confidential
-			case model.StrictlyConfidential.String():
-				confidentiality = model.StrictlyConfidential
+			case types.Public.String():
+				confidentiality = types.Public
+			case types.Internal.String():
+				confidentiality = types.Internal
+			case types.Restricted.String():
+				confidentiality = types.Restricted
+			case types.Confidential.String():
+				confidentiality = types.Confidential
+			case types.StrictlyConfidential.String():
+				confidentiality = types.StrictlyConfidential
 			default:
 				panic(errors.New("unknown 'confidentiality' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Confidentiality)))
 			}
 
-			var integrity model.Criticality
+			var integrity types.Criticality
 			switch asset.Integrity {
-			case model.Archive.String():
-				integrity = model.Archive
-			case model.Operational.String():
-				integrity = model.Operational
-			case model.Important.String():
-				integrity = model.Important
-			case model.Critical.String():
-				integrity = model.Critical
-			case model.MissionCritical.String():
-				integrity = model.MissionCritical
+			case types.Archive.String():
+				integrity = types.Archive
+			case types.Operational.String():
+				integrity = types.Operational
+			case types.Important.String():
+				integrity = types.Important
+			case types.Critical.String():
+				integrity = types.Critical
+			case types.MissionCritical.String():
+				integrity = types.MissionCritical
 			default:
 				panic(errors.New("unknown 'integrity' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Integrity)))
 			}
 
-			var availability model.Criticality
+			var availability types.Criticality
 			switch asset.Availability {
-			case model.Archive.String():
-				availability = model.Archive
-			case model.Operational.String():
-				availability = model.Operational
-			case model.Important.String():
-				availability = model.Important
-			case model.Critical.String():
-				availability = model.Critical
-			case model.MissionCritical.String():
-				availability = model.MissionCritical
+			case types.Archive.String():
+				availability = types.Archive
+			case types.Operational.String():
+				availability = types.Operational
+			case types.Important.String():
+				availability = types.Important
+			case types.Critical.String():
+				availability = types.Critical
+			case types.MissionCritical.String():
+				availability = types.MissionCritical
 			default:
 				panic(errors.New("unknown 'availability' value of technical asset '" + title + "': " + fmt.Sprintf("%v", asset.Availability)))
 			}
 
-			dataFormatsAccepted := make([]model.DataFormat, 0)
+			dataFormatsAccepted := make([]types.DataFormat, 0)
 			if asset.DataFormatsAccepted != nil {
 				for _, dataFormatName := range asset.DataFormatsAccepted {
 					switch dataFormatName {
-					case model.JSON.String():
-						dataFormatsAccepted = append(dataFormatsAccepted, model.JSON)
-					case model.XML.String():
-						dataFormatsAccepted = append(dataFormatsAccepted, model.XML)
-					case model.Serialization.String():
-						dataFormatsAccepted = append(dataFormatsAccepted, model.Serialization)
-					case model.File.String():
-						dataFormatsAccepted = append(dataFormatsAccepted, model.File)
-					case model.CSV.String():
-						dataFormatsAccepted = append(dataFormatsAccepted, model.CSV)
+					case types.JSON.String():
+						dataFormatsAccepted = append(dataFormatsAccepted, types.JSON)
+					case types.XML.String():
+						dataFormatsAccepted = append(dataFormatsAccepted, types.XML)
+					case types.Serialization.String():
+						dataFormatsAccepted = append(dataFormatsAccepted, types.Serialization)
+					case types.File.String():
+						dataFormatsAccepted = append(dataFormatsAccepted, types.File)
+					case types.CSV.String():
+						dataFormatsAccepted = append(dataFormatsAccepted, types.CSV)
 					default:
 						panic(errors.New("unknown 'data_formats_accepted' value of technical asset '" + title + "': " + fmt.Sprintf("%v", dataFormatName)))
 					}
@@ -4387,143 +4339,143 @@ func parseModel(inputFilename string) {
 				for commLinkTitle, commLink := range asset.CommunicationLinks {
 					constraint := true
 					weight := 1
-					var protocol model.Protocol
-					var authentication model.Authentication
-					var authorization model.Authorization
-					var usage model.Usage
+					var protocol types.Protocol
+					var authentication types.Authentication
+					var authorization types.Authorization
+					var usage types.Usage
 					var dataAssetsSent []string
 					var dataAssetsReceived []string
 
 					switch commLink.Authentication {
-					case model.NoneAuthentication.String():
-						authentication = model.NoneAuthentication
-					case model.Credentials.String():
-						authentication = model.Credentials
-					case model.SessionId.String():
-						authentication = model.SessionId
-					case model.Token.String():
-						authentication = model.Token
-					case model.ClientCertificate.String():
-						authentication = model.ClientCertificate
-					case model.TwoFactor.String():
-						authentication = model.TwoFactor
-					case model.Externalized.String():
-						authentication = model.Externalized
+					case types.NoneAuthentication.String():
+						authentication = types.NoneAuthentication
+					case types.Credentials.String():
+						authentication = types.Credentials
+					case types.SessionId.String():
+						authentication = types.SessionId
+					case types.Token.String():
+						authentication = types.Token
+					case types.ClientCertificate.String():
+						authentication = types.ClientCertificate
+					case types.TwoFactor.String():
+						authentication = types.TwoFactor
+					case types.Externalized.String():
+						authentication = types.Externalized
 					default:
 						panic(errors.New("unknown 'authentication' value of technical asset '" + title + "' communication link '" + commLinkTitle + "': " + fmt.Sprintf("%v", commLink.Authentication)))
 					}
 
 					switch commLink.Authorization {
-					case model.NoneAuthorization.String():
-						authorization = model.NoneAuthorization
-					case model.TechnicalUser.String():
-						authorization = model.TechnicalUser
-					case model.EndUserIdentityPropagation.String():
-						authorization = model.EndUserIdentityPropagation
+					case types.NoneAuthorization.String():
+						authorization = types.NoneAuthorization
+					case types.TechnicalUser.String():
+						authorization = types.TechnicalUser
+					case types.EndUserIdentityPropagation.String():
+						authorization = types.EndUserIdentityPropagation
 					default:
 						panic(errors.New("unknown 'authorization' value of technical asset '" + title + "' communication link '" + commLinkTitle + "': " + fmt.Sprintf("%v", commLink.Authorization)))
 					}
 
 					switch commLink.Usage {
-					case model.Business.String():
-						usage = model.Business
-					case model.DevOps.String():
-						usage = model.DevOps
+					case types.Business.String():
+						usage = types.Business
+					case types.DevOps.String():
+						usage = types.DevOps
 					default:
 						panic(errors.New("unknown 'usage' value of technical asset '" + title + "' communication link '" + commLinkTitle + "': " + fmt.Sprintf("%v", commLink.Usage)))
 					}
 
 					switch commLink.Protocol {
-					case model.UnknownProtocol.String():
-						protocol = model.UnknownProtocol
-					case model.HTTP.String():
-						protocol = model.HTTP
-					case model.HTTPS.String():
-						protocol = model.HTTPS
-					case model.WS.String():
-						protocol = model.WS
-					case model.WSS.String():
-						protocol = model.WSS
-					case model.MQTT.String():
-						protocol = model.MQTT
-					case model.JDBC.String():
-						protocol = model.JDBC
-					case model.JdbcEncrypted.String():
-						protocol = model.JdbcEncrypted
-					case model.ODBC.String():
-						protocol = model.ODBC
-					case model.OdbcEncrypted.String():
-						protocol = model.OdbcEncrypted
-					case model.SqlAccessProtocol.String():
-						protocol = model.SqlAccessProtocol
-					case model.SqlAccessProtocolEncrypted.String():
-						protocol = model.SqlAccessProtocolEncrypted
-					case model.NosqlAccessProtocol.String():
-						protocol = model.NosqlAccessProtocol
-					case model.NosqlAccessProtocolEncrypted.String():
-						protocol = model.NosqlAccessProtocolEncrypted
-					case model.TEXT.String():
-						protocol = model.TEXT
-					case model.TextEncrypted.String():
-						protocol = model.TextEncrypted
-					case model.BINARY.String():
-						protocol = model.BINARY
-					case model.BinaryEncrypted.String():
-						protocol = model.BinaryEncrypted
-					case model.SSH.String():
-						protocol = model.SSH
-					case model.SshTunnel.String():
-						protocol = model.SshTunnel
-					case model.SMTP.String():
-						protocol = model.SMTP
-					case model.SmtpEncrypted.String():
-						protocol = model.SmtpEncrypted
-					case model.POP3.String():
-						protocol = model.POP3
-					case model.Pop3Encrypted.String():
-						protocol = model.Pop3Encrypted
-					case model.IMAP.String():
-						protocol = model.IMAP
-					case model.ImapEncrypted.String():
-						protocol = model.ImapEncrypted
-					case model.FTP.String():
-						protocol = model.FTP
-					case model.FTPS.String():
-						protocol = model.FTPS
-					case model.SFTP.String():
-						protocol = model.SFTP
-					case model.SCP.String():
-						protocol = model.SCP
-					case model.LDAP.String():
-						protocol = model.LDAP
-					case model.LDAPS.String():
-						protocol = model.LDAPS
-					case model.JMS.String():
-						protocol = model.JMS
-					case model.NFS.String():
-						protocol = model.NFS
-					case model.SMB.String():
-						protocol = model.SMB
-					case model.SmbEncrypted.String():
-						protocol = model.SmbEncrypted
-					case model.LocalFileAccess.String():
-						protocol = model.LocalFileAccess
-					case model.NRPE.String():
-						protocol = model.NRPE
-					case model.XMPP.String():
-						protocol = model.XMPP
-					case model.IIOP.String():
-						protocol = model.IIOP
-					case model.IiopEncrypted.String():
-						protocol = model.IiopEncrypted
-					case model.JRMP.String():
-						protocol = model.JRMP
-					case model.JrmpEncrypted.String():
-						protocol = model.JrmpEncrypted
-					case model.InProcessLibraryCall.String():
-						protocol = model.InProcessLibraryCall
-					case model.ContainerSpawning.String():
-						protocol = model.ContainerSpawning
+					case types.UnknownProtocol.String():
+						protocol = types.UnknownProtocol
+					case types.HTTP.String():
+						protocol = types.HTTP
+					case types.HTTPS.String():
+						protocol = types.HTTPS
+					case types.WS.String():
+						protocol = types.WS
+					case types.WSS.String():
+						protocol = types.WSS
+					case types.MQTT.String():
+						protocol = types.MQTT
+					case types.JDBC.String():
+						protocol = types.JDBC
+					case types.JdbcEncrypted.String():
+						protocol = types.JdbcEncrypted
+					case types.ODBC.String():
+						protocol = types.ODBC
+					case types.OdbcEncrypted.String():
+						protocol = types.OdbcEncrypted
+					case types.SqlAccessProtocol.String():
+						protocol = types.SqlAccessProtocol
+					case types.SqlAccessProtocolEncrypted.String():
+						protocol = types.SqlAccessProtocolEncrypted
+					case types.NosqlAccessProtocol.String():
+						protocol = types.NosqlAccessProtocol
+					case types.NosqlAccessProtocolEncrypted.String():
+						protocol = types.NosqlAccessProtocolEncrypted
+					case types.TEXT.String():
+						protocol = types.TEXT
+					case types.TextEncrypted.String():
+						protocol = types.TextEncrypted
+					case types.BINARY.String():
+						protocol = types.BINARY
+					case types.BinaryEncrypted.String():
+						protocol = types.BinaryEncrypted
+					case types.SSH.String():
+						protocol = types.SSH
+					case types.SshTunnel.String():
+						protocol = types.SshTunnel
+					case types.SMTP.String():
+						protocol = types.SMTP
+					case types.SmtpEncrypted.String():
+						protocol = types.SmtpEncrypted
+					case types.POP3.String():
+						protocol = types.POP3
+					case types.Pop3Encrypted.String():
+						protocol = types.Pop3Encrypted
+					case types.IMAP.String():
+						protocol = types.IMAP
+					case types.ImapEncrypted.String():
+						protocol = types.ImapEncrypted
+					case types.FTP.String():
+						protocol = types.FTP
+					case types.FTPS.String():
+						protocol = types.FTPS
+					case types.SFTP.String():
+						protocol = types.SFTP
+					case types.SCP.String():
+						protocol = types.SCP
+					case types.LDAP.String():
+						protocol = types.LDAP
+					case types.LDAPS.String():
+						protocol = types.LDAPS
+					case types.JMS.String():
+						protocol = types.JMS
+					case types.NFS.String():
+						protocol = types.NFS
+					case types.SMB.String():
+						protocol = types.SMB
+					case types.SmbEncrypted.String():
+						protocol = types.SmbEncrypted
+					case types.LocalFileAccess.String():
+						protocol = types.LocalFileAccess
+					case types.NRPE.String():
+						protocol = types.NRPE
+					case types.XMPP.String():
+						protocol = types.XMPP
+					case types.IIOP.String():
+						protocol = types.IIOP
+					case types.IiopEncrypted.String():
+						protocol = types.IiopEncrypted
+					case types.JRMP.String():
+						protocol = types.JRMP
+					case types.JrmpEncrypted.String():
+						protocol = types.JrmpEncrypted
+					case types.InProcessLibraryCall.String():
+						protocol = types.InProcessLibraryCall
+					case types.ContainerSpawning.String():
+						protocol = types.ContainerSpawning
 					default:
 						panic(errors.New("unknown 'protocol' of technical asset '" + title + "' communication link '" + commLinkTitle + "': " + fmt.Sprintf("%v", commLink.Protocol)))
 					}
@@ -4649,22 +4601,22 @@ func parseModel(inputFilename string) {
 				}
 			}
 
-			var trustBoundaryType model.TrustBoundaryType
+			var trustBoundaryType types.TrustBoundaryType
 			switch boundary.Type {
-			case model.NetworkOnPrem.String():
-				trustBoundaryType = model.NetworkOnPrem
-			case model.NetworkDedicatedHoster.String():
-				trustBoundaryType = model.NetworkDedicatedHoster
-			case model.NetworkVirtualLAN.String():
-				trustBoundaryType = model.NetworkVirtualLAN
-			case model.NetworkCloudProvider.String():
-				trustBoundaryType = model.NetworkCloudProvider
-			case model.NetworkCloudSecurityGroup.String():
-				trustBoundaryType = model.NetworkCloudSecurityGroup
-			case model.NetworkPolicyNamespaceIsolation.String():
-				trustBoundaryType = model.NetworkPolicyNamespaceIsolation
-			case model.ExecutionEnvironment.String():
-				trustBoundaryType = model.ExecutionEnvironment
+			case types.NetworkOnPrem.String():
+				trustBoundaryType = types.NetworkOnPrem
+			case types.NetworkDedicatedHoster.String():
+				trustBoundaryType = types.NetworkDedicatedHoster
+			case types.NetworkVirtualLAN.String():
+				trustBoundaryType = types.NetworkVirtualLAN
+			case types.NetworkCloudProvider.String():
+				trustBoundaryType = types.NetworkCloudProvider
+			case types.NetworkCloudSecurityGroup.String():
+				trustBoundaryType = types.NetworkCloudSecurityGroup
+			case types.NetworkPolicyNamespaceIsolation.String():
+				trustBoundaryType = types.NetworkPolicyNamespaceIsolation
+			case types.ExecutionEnvironment.String():
+				trustBoundaryType = types.ExecutionEnvironment
 			default:
 				panic(errors.New("unknown 'type' of trust boundary '" + title + "': " + fmt.Sprintf("%v", boundary.Type)))
 			}
@@ -4728,34 +4680,34 @@ func parseModel(inputFilename string) {
 		for title, individualCategory := range modelInput.IndividualRiskCategories {
 			id := fmt.Sprintf("%v", individualCategory.ID)
 
-			var function model.RiskFunction
+			var function types.RiskFunction
 			switch individualCategory.Function {
-			case model.BusinessSide.String():
-				function = model.BusinessSide
-			case model.Architecture.String():
-				function = model.Architecture
-			case model.Development.String():
-				function = model.Development
-			case model.Operations.String():
-				function = model.Operations
+			case types.BusinessSide.String():
+				function = types.BusinessSide
+			case types.Architecture.String():
+				function = types.Architecture
+			case types.Development.String():
+				function = types.Development
+			case types.Operations.String():
+				function = types.Operations
 			default:
 				panic(errors.New("unknown 'function' value of individual risk category '" + title + "': " + fmt.Sprintf("%v", individualCategory.Function)))
 			}
 
-			var stride model.STRIDE
+			var stride types.STRIDE
 			switch individualCategory.STRIDE {
-			case model.Spoofing.String():
-				stride = model.Spoofing
-			case model.Tampering.String():
-				stride = model.Tampering
-			case model.Repudiation.String():
-				stride = model.Repudiation
-			case model.InformationDisclosure.String():
-				stride = model.InformationDisclosure
-			case model.DenialOfService.String():
-				stride = model.DenialOfService
-			case model.ElevationOfPrivilege.String():
-				stride = model.ElevationOfPrivilege
+			case types.Spoofing.String():
+				stride = types.Spoofing
+			case types.Tampering.String():
+				stride = types.Tampering
+			case types.Repudiation.String():
+				stride = types.Repudiation
+			case types.InformationDisclosure.String():
+				stride = types.InformationDisclosure
+			case types.DenialOfService.String():
+				stride = types.DenialOfService
+			case types.ElevationOfPrivilege.String():
+				stride = types.ElevationOfPrivilege
 			default:
 				panic(errors.New("unknown 'stride' value of individual risk category '" + title + "': " + fmt.Sprintf("%v", individualCategory.STRIDE)))
 			}
@@ -4788,56 +4740,56 @@ func parseModel(inputFilename string) {
 			//individualRiskInstances := make([]model.Risk, 0)
 			if individualCategory.RisksIdentified != nil { // TODO: also add syntax checks of input YAML when linked asset is not found or when synthetic-id is already used...
 				for title, individualRiskInstance := range individualCategory.RisksIdentified {
-					var severity model.RiskSeverity
-					var exploitationLikelihood model.RiskExploitationLikelihood
-					var exploitationImpact model.RiskExploitationImpact
+					var severity types.RiskSeverity
+					var exploitationLikelihood types.RiskExploitationLikelihood
+					var exploitationImpact types.RiskExploitationImpact
 					var mostRelevantDataAssetId, mostRelevantTechnicalAssetId, mostRelevantCommunicationLinkId, mostRelevantTrustBoundaryId, mostRelevantSharedRuntimeId string
-					var dataBreachProbability model.DataBreachProbability
+					var dataBreachProbability types.DataBreachProbability
 					var dataBreachTechnicalAssetIDs []string
 
 					switch individualRiskInstance.Severity {
-					case model.LowSeverity.String():
-						severity = model.LowSeverity
-					case model.MediumSeverity.String():
-						severity = model.MediumSeverity
-					case model.ElevatedSeverity.String():
-						severity = model.ElevatedSeverity
-					case model.HighSeverity.String():
-						severity = model.HighSeverity
-					case model.CriticalSeverity.String():
-						severity = model.CriticalSeverity
+					case types.LowSeverity.String():
+						severity = types.LowSeverity
+					case types.MediumSeverity.String():
+						severity = types.MediumSeverity
+					case types.ElevatedSeverity.String():
+						severity = types.ElevatedSeverity
+					case types.HighSeverity.String():
+						severity = types.HighSeverity
+					case types.CriticalSeverity.String():
+						severity = types.CriticalSeverity
 					case "": // added default
-						severity = model.MediumSeverity
+						severity = types.MediumSeverity
 					default:
 						panic(errors.New("unknown 'severity' value of individual risk instance '" + title + "': " + fmt.Sprintf("%v", individualRiskInstance.Severity)))
 					}
 
 					switch individualRiskInstance.ExploitationLikelihood {
-					case model.Unlikely.String():
-						exploitationLikelihood = model.Unlikely
-					case model.Likely.String():
-						exploitationLikelihood = model.Likely
-					case model.VeryLikely.String():
-						exploitationLikelihood = model.VeryLikely
-					case model.Frequent.String():
-						exploitationLikelihood = model.Frequent
+					case types.Unlikely.String():
+						exploitationLikelihood = types.Unlikely
+					case types.Likely.String():
+						exploitationLikelihood = types.Likely
+					case types.VeryLikely.String():
+						exploitationLikelihood = types.VeryLikely
+					case types.Frequent.String():
+						exploitationLikelihood = types.Frequent
 					case "": // added default
-						exploitationLikelihood = model.Likely
+						exploitationLikelihood = types.Likely
 					default:
 						panic(errors.New("unknown 'exploitation_likelihood' value of individual risk instance '" + title + "': " + fmt.Sprintf("%v", individualRiskInstance.ExploitationLikelihood)))
 					}
 
 					switch individualRiskInstance.ExploitationImpact {
-					case model.LowImpact.String():
-						exploitationImpact = model.LowImpact
-					case model.MediumImpact.String():
-						exploitationImpact = model.MediumImpact
-					case model.HighImpact.String():
-						exploitationImpact = model.HighImpact
-					case model.VeryHighImpact.String():
-						exploitationImpact = model.VeryHighImpact
+					case types.LowImpact.String():
+						exploitationImpact = types.LowImpact
+					case types.MediumImpact.String():
+						exploitationImpact = types.MediumImpact
+					case types.HighImpact.String():
+						exploitationImpact = types.HighImpact
+					case types.VeryHighImpact.String():
+						exploitationImpact = types.VeryHighImpact
 					case "": // added default
-						exploitationImpact = model.MediumImpact
+						exploitationImpact = types.MediumImpact
 					default:
 						panic(errors.New("unknown 'exploitation_impact' value of individual risk instance '" + title + "': " + fmt.Sprintf("%v", individualRiskInstance.ExploitationImpact)))
 					}
@@ -4868,14 +4820,14 @@ func parseModel(inputFilename string) {
 					}
 
 					switch individualRiskInstance.DataBreachProbability {
-					case model.Improbable.String():
-						dataBreachProbability = model.Improbable
-					case model.Possible.String():
-						dataBreachProbability = model.Possible
-					case model.Probable.String():
-						dataBreachProbability = model.Probable
+					case types.Improbable.String():
+						dataBreachProbability = types.Improbable
+					case types.Possible.String():
+						dataBreachProbability = types.Possible
+					case types.Probable.String():
+						dataBreachProbability = types.Probable
 					case "": // added default
-						dataBreachProbability = model.Possible
+						dataBreachProbability = types.Possible
 					default:
 						panic(errors.New("unknown 'data_breach_probability' value of individual risk instance '" + title + "': " + fmt.Sprintf("%v", individualRiskInstance.DataBreachProbability)))
 					}
@@ -4925,20 +4877,20 @@ func parseModel(inputFilename string) {
 				}
 			}
 
-			var status model.RiskStatus
+			var status types.RiskStatus
 			switch riskTracking.Status {
-			case model.Unchecked.String():
-				status = model.Unchecked
-			case model.Mitigated.String():
-				status = model.Mitigated
-			case model.InProgress.String():
-				status = model.InProgress
-			case model.Accepted.String():
-				status = model.Accepted
-			case model.InDiscussion.String():
-				status = model.InDiscussion
-			case model.FalsePositive.String():
-				status = model.FalsePositive
+			case types.Unchecked.String():
+				status = types.Unchecked
+			case types.Mitigated.String():
+				status = types.Mitigated
+			case types.InProgress.String():
+				status = types.InProgress
+			case types.Accepted.String():
+				status = types.Accepted
+			case types.InDiscussion.String():
+				status = types.InDiscussion
+			case types.FalsePositive.String():
+				status = types.FalsePositive
 			default:
 				panic(errors.New("unknown 'status' value of risk tracking '" + syntheticRiskId + "': " + riskTracking.Status))
 			}
@@ -5322,10 +5274,10 @@ func writeDataFlowDiagramGraphvizDOT(diagramFilenameDOT string, dpi int) *os.Fil
 			if len(trustBoundary.ParentTrustBoundaryID()) > 0 {
 				bgColor = "#F1F1F1"
 			}
-			if trustBoundary.Type == model.NetworkPolicyNamespaceIsolation {
+			if trustBoundary.Type == types.NetworkPolicyNamespaceIsolation {
 				fontColor, bgColor = "#222222", "#DFF4FF"
 			}
-			if trustBoundary.Type == model.ExecutionEnvironment {
+			if trustBoundary.Type == types.ExecutionEnvironment {
 				fontColor, bgColor, style = "#555555", "#FFFFF0", "dotted"
 			}
 			snippet.WriteString(`	graph [
@@ -5503,15 +5455,15 @@ func makeTechAssetNode(technicalAsset model.TechnicalAsset, simplified bool) str
 		if !technicalAsset.OutOfScope {
 			risks := technicalAsset.GeneratedRisks()
 			switch model.HighestSeverityStillAtRisk(risks) {
-			case model.CriticalSeverity:
+			case types.CriticalSeverity:
 				color = colors.RgbHexColorCriticalRisk()
-			case model.HighSeverity:
+			case types.HighSeverity:
 				color = colors.RgbHexColorHighRisk()
-			case model.ElevatedSeverity:
+			case types.ElevatedSeverity:
 				color = colors.RgbHexColorElevatedRisk()
-			case model.MediumSeverity:
+			case types.MediumSeverity:
 				color = colors.RgbHexColorMediumRisk()
-			case model.LowSeverity:
+			case types.LowSeverity:
 				color = colors.RgbHexColorLowRisk()
 			default:
 				color = "#444444" // since black is too dark here as fill color
@@ -5527,13 +5479,13 @@ func makeTechAssetNode(technicalAsset model.TechnicalAsset, simplified bool) str
 		var shape, title string
 		var lineBreak = ""
 		switch technicalAsset.Type {
-		case model.ExternalEntity:
+		case types.ExternalEntity:
 			shape = "box"
 			title = technicalAsset.Title
-		case model.Process:
+		case types.Process:
 			shape = "ellipse"
 			title = technicalAsset.Title
-		case model.Datastore:
+		case types.Datastore:
 			shape = "cylinder"
 			title = technicalAsset.Title
 			if technicalAsset.Redundant {
@@ -5570,11 +5522,11 @@ func makeTechAssetNode(technicalAsset model.TechnicalAsset, simplified bool) str
 func makeDataAssetNode(dataAsset model.DataAsset) string {
 	var color string
 	switch dataAsset.IdentifiedDataBreachProbabilityStillAtRisk() {
-	case model.Probable:
+	case types.Probable:
 		color = colors.RgbHexColorHighRisk()
-	case model.Possible:
+	case types.Possible:
 		color = colors.RgbHexColorMediumRisk()
-	case model.Improbable:
+	case types.Improbable:
 		color = colors.RgbHexColorLowRisk()
 	default:
 		color = "#444444" // since black is too dark here as fill color

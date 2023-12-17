@@ -2,6 +2,7 @@ package missing_waf
 
 import (
 	"github.com/threagile/threagile/model"
+	"github.com/threagile/threagile/pkg/security/types"
 )
 
 func Category() model.RiskCategory {
@@ -18,8 +19,8 @@ func Category() model.RiskCategory {
 		Mitigation: "Consider placing a Web Application Firewall (WAF) in front of the web-services and/or web-applications. For cloud environments many cloud providers offer " +
 			"pre-configured WAFs. Even reverse proxies can be enhances by a WAF component via ModSecurity plugins.",
 		Check:          "Is a Web Application Firewall (WAF) in place?",
-		Function:       model.Operations,
-		STRIDE:         model.Tampering,
+		Function:       types.Operations,
+		STRIDE:         types.Tampering,
 		DetectionLogic: "In-scope web-services and/or web-applications accessed across a network trust boundary not having a Web Application Firewall (WAF) in front of them.",
 		RiskAssessment: "The risk rating depends on the sensitivity of the technical asset itself and of the data assets processed and stored.",
 		FalsePositives: "Targets only accessible via WAFs or reverse proxies containing a WAF component (like ModSecurity) can be considered " +
@@ -41,7 +42,7 @@ func GenerateRisks() []model.Risk {
 			for _, incomingAccess := range model.IncomingTechnicalCommunicationLinksMappedByTargetId[technicalAsset.Id] {
 				if incomingAccess.IsAcrossTrustBoundaryNetworkOnly() &&
 					incomingAccess.Protocol.IsPotentialWebAccessProtocol() &&
-					model.ParsedModelRoot.TechnicalAssets[incomingAccess.SourceId].Technology != model.WAF {
+					model.ParsedModelRoot.TechnicalAssets[incomingAccess.SourceId].Technology != types.WAF {
 					risks = append(risks, createRisk(technicalAsset))
 					break
 				}
@@ -53,12 +54,12 @@ func GenerateRisks() []model.Risk {
 
 func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 	title := "<b>Missing Web Application Firewall (WAF)</b> risk at <b>" + technicalAsset.Title + "</b>"
-	likelihood := model.Unlikely
-	impact := model.LowImpact
-	if technicalAsset.HighestConfidentiality() == model.StrictlyConfidential ||
-		technicalAsset.HighestIntegrity() == model.MissionCritical ||
-		technicalAsset.HighestAvailability() == model.MissionCritical {
-		impact = model.MediumImpact
+	likelihood := types.Unlikely
+	impact := types.LowImpact
+	if technicalAsset.HighestConfidentiality() == types.StrictlyConfidential ||
+		technicalAsset.HighestIntegrity() == types.MissionCritical ||
+		technicalAsset.HighestAvailability() == types.MissionCritical {
+		impact = types.MediumImpact
 	}
 	risk := model.Risk{
 		Category:                     Category(),
@@ -67,7 +68,7 @@ func createRisk(technicalAsset model.TechnicalAsset) model.Risk {
 		ExploitationImpact:           impact,
 		Title:                        title,
 		MostRelevantTechnicalAssetId: technicalAsset.Id,
-		DataBreachProbability:        model.Improbable,
+		DataBreachProbability:        types.Improbable,
 		DataBreachTechnicalAssetIDs:  []string{technicalAsset.Id},
 	}
 	risk.SyntheticId = risk.Category.Id + "@" + technicalAsset.Id
